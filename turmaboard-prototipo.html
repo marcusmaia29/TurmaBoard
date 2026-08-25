@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TurmaBoard — Protótipo</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #66758f;
+      --line: #e3e9f2;
+      --surface: #ffffff;
+      --soft: #f5f7fb;
+      --blue: #2962ff;
+      --blue-soft: #eaf0ff;
+      --shadow: 0 10px 30px rgba(36, 50, 80, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 10% 95%, rgba(63, 142, 252, .16), transparent 31%),
+        radial-gradient(circle at 92% 90%, rgba(114, 167, 255, .13), transparent 28%),
+        #f8faff;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .icon {
+      width: 19px;
+      height: 19px;
+      stroke: currentColor;
+      stroke-width: 1.9;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex: 0 0 auto;
+    }
+
+    .app-header {
+      height: 82px;
+      padding: 0 48px;
+      display: flex;
+      align-items: center;
+      gap: 34px;
+      background: rgba(255, 255, 255, .95);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 210px;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 850;
+      letter-spacing: -.8px;
+      background: linear-gradient(135deg, #1548d8, #448cff);
+      box-shadow: 0 8px 20px rgba(41, 98, 255, .25);
+    }
+
+    .brand-name { font-size: 20px; font-weight: 800; line-height: 1.05; }
+    .brand-sub { margin-top: 4px; font-size: 12px; color: var(--muted); }
+
+    .main-nav {
+      padding: 5px;
+      display: flex;
+      gap: 3px;
+      background: #f0f3f8;
+      border-radius: 14px;
+    }
+
+    .nav-item {
+      height: 42px;
+      padding: 0 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 0;
+      border-radius: 10px;
+      color: #41506a;
+      background: transparent;
+      font-weight: 680;
+    }
+
+    .nav-item.active {
+      color: var(--ink);
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(30, 43, 70, .08);
+    }
+
+    .header-spacer { flex: 1; }
+
+    .semester-pill {
+      padding: 8px 12px;
+      border-radius: 10px;
+      color: #53637c;
+      background: #f4f6f9;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      background: #15294d;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .profile strong { display: block; font-size: 14px; }
+    .profile span { color: var(--muted); font-size: 11px; }
+
+    main { min-height: calc(100vh - 82px); padding: 28px 48px 52px; }
+
+    .page-title-row {
+      margin-bottom: 19px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .eyebrow {
+      margin-bottom: 4px;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1 { margin: 0; font-size: 25px; letter-spacing: -.5px; }
+    .intro { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+
+    .add-button {
+      height: 44px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      border: 0;
+      border-radius: 11px;
+      color: #fff;
+      background: var(--blue);
+      box-shadow: 0 8px 20px rgba(41, 98, 255, .25);
+      font-weight: 750;
+    }
+
+    .toolbar {
+      min-height: 70px;
+      padding: 13px 15px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 20px;
+      background: rgba(255,255,255,.96);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .filter {
+      height: 34px;
+      padding: 0 12px;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      color: #60708a;
+      background: #f3f5f9;
+      font-size: 12px;
+      font-weight: 720;
+    }
+
+    .filter.active { color: #244fbf; border-color: #cfdcff; background: var(--blue-soft); }
+
+    .week-switcher { display: flex; align-items: center; gap: 10px; }
+
+    .week-button {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: #50617c;
+      background: #fff;
+    }
+
+    .week-label { min-width: 170px; text-align: center; }
+    .week-label strong { display: block; font-size: 15px; }
+    .week-label span { color: var(--muted); font-size: 11px; }
+
+    .toolbar-meta { justify-self: end; color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .toolbar-meta b { color: #34435d; }
+
+    .board {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(270px, 1fr));
+      gap: 16px;
+      align-items: start;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+
+    .column {
+      min-height: 560px;
+      overflow: hidden;
+      border: 1px solid #e4e9f1;
+      border-radius: 15px;
+      background: rgba(241, 244, 249, .83);
+    }
+
+    .column-header {
+      height: 65px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+      background: var(--subject-color);
+    }
+
+    .subject-icon {
+      width: 31px;
+      height: 31px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: rgba(255,255,255,.18);
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .column-title { min-width: 0; flex: 1; }
+    .column-title strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
+    .column-title span { display: block; margin-top: 2px; opacity: .82; font-size: 10px; }
+
+    .count {
+      width: 27px;
+      height: 27px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(255,255,255,.2);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .cards { padding: 13px; display: flex; flex-direction: column; gap: 11px; }
+
+    .card {
+      padding: 15px;
+      border: 1px solid #dfe5ee;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 3px 10px rgba(35, 47, 72, .07);
+      transition: .15s ease;
+    }
+
+    .card:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(35, 47, 72, .11); }
+    .card[data-hidden="true"] { display: none; }
+
+    .card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+
+    .tag {
+      padding: 5px 8px;
+      border-radius: 7px;
+      font-size: 10px;
+      font-weight: 820;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+
+    .tag.quiz { color: #2165b9; background: #e4f1ff; }
+    .tag.projeto { color: #6f42c1; background: #eee6ff; }
+    .tag.prova { color: #b3263e; background: #ffe6ea; }
+    .tag.aps { color: #9a5a00; background: #fff0d5; }
+    .tag.atividade { color: #167457; background: #ddf6ec; }
+    .tag.aviso { color: #59677e; background: #edf0f4; }
+
+    .menu-button { padding: 0; border: 0; color: #9aa6b9; background: none; font-size: 18px; line-height: 1; }
+    .card h3 { margin: 12px 0 7px; font-size: 14px; letter-spacing: -.1px; }
+    .card p { margin: 0 0 12px; min-height: 32px; color: #6b7890; font-size: 11px; line-height: 1.45; }
+
+    .deadline {
+      margin-bottom: 12px;
+      padding: 9px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-radius: 8px;
+      color: #41516a;
+      background: #f5f7fa;
+      font-size: 11px;
+      font-weight: 680;
+    }
+
+    .deadline span { display: flex; align-items: center; gap: 6px; }
+    .deadline .icon { width: 14px; height: 14px; }
+    .urgent { color: #b3263e !important; background: #fff1f3 !important; }
+
+    .card-footer {
+      padding-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border-top: 1px solid #edf0f4;
+    }
+
+    .author { display: flex; align-items: center; gap: 7px; color: #7c889b; font-size: 10px; }
+    .mini-avatar {
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: white;
+      background: #415d8e;
+      font-size: 8px;
+      font-weight: 800;
+    }
+
+    .link-button {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border: 0;
+      color: var(--blue);
+      background: none;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .link-button .icon { width: 13px; height: 13px; }
+
+    .empty-column {
+      height: 185px;
+      display: grid;
+      place-items: center;
+      color: #8c99ac;
+      text-align: center;
+    }
+
+    .empty-column .empty-symbol { margin: auto; font-size: 28px; opacity: .6; }
+    .empty-column strong { display: block; margin-top: 8px; font-size: 12px; }
+    .empty-column span { font-size: 10px; }
+
+    .view-placeholder {
+      margin-top: 18px;
+      min-height: 520px;
+      display: none;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      color: var(--muted);
+      background: rgba(255,255,255,.9);
+      text-align: center;
+    }
+
+    .view-placeholder.active { display: grid; }
+    .placeholder-icon { font-size: 45px; }
+    .view-placeholder h2 { margin: 10px 0 5px; color: var(--ink); }
+    .view-placeholder p { margin: 0; font-size: 13px; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      place-items: center;
+      padding: 20px;
+      background: rgba(17, 27, 46, .48);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-backdrop.open { display: grid; }
+    .modal { width: min(480px, 100%); padding: 24px; border-radius: 16px; background: #fff; box-shadow: 0 24px 80px rgba(10,20,40,.25); }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; }
+    .modal h2 { margin: 0; font-size: 20px; }
+    .close { border: 0; background: none; font-size: 24px; color: #718099; }
+    .form-grid { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { color: #58677f; font-size: 11px; font-weight: 750; }
+    .field input, .field select, .field textarea { width: 100%; padding: 10px 11px; border: 1px solid #dce3ed; border-radius: 8px; color: var(--ink); background: #fff; outline: none; }
+    .field textarea { min-height: 70px; resize: vertical; }
+    .modal-actions { margin-top: 17px; display: flex; justify-content: flex-end; gap: 9px; }
+    .secondary, .primary { height: 39px; padding: 0 15px; border-radius: 9px; font-weight: 750; }
+    .secondary { border: 1px solid var(--line); color: #4e5f78; background: #fff; }
+    .primary { border: 0; color: #fff; background: var(--blue); }
+
+    @media (max-width: 1100px) {
+      .app-header { padding: 0 22px; gap: 18px; }
+      .brand { min-width: auto; }
+      .brand-sub, .profile div, .semester-pill { display: none; }
+      main { padding: 24px 22px 45px; }
+      .board { grid-template-columns: repeat(4, 290px); }
+      .toolbar { grid-template-columns: 1fr auto; }
+      .toolbar-meta { display: none; }
+    }
+
+    @media (max-width: 720px) {
+      .app-header { height: auto; min-height: 72px; padding: 12px 16px; flex-wrap: wrap; }
+      .brand { flex: 1; }
+      .main-nav { width: 100%; order: 4; overflow-x: auto; }
+      .nav-item { flex: 1; justify-content: center; padding: 0 10px; }
+      .nav-item span { display: none; }
+      main { padding: 20px 15px 36px; }
+      .page-title-row { align-items: center; }
+      .intro { display: none; }
+      .add-button span { display: none; }
+      .toolbar { grid-template-columns: 1fr; }
+      .week-switcher { grid-row: 1; justify-content: center; }
+      .filters { justify-content: center; }
+      .board { grid-template-columns: repeat(4, min(82vw, 315px)); }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-mark">TB</div>
+      <div>
+        <div class="brand-name">TurmaBoard</div>
+        <div class="brand-sub">Ciência da Computação · 4º semestre</div>
+      </div>
+    </div>
+
+    <nav class="main-nav" aria-label="Navegação principal">
+      <button class="nav-item active" data-view="semana" title="Semana">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Semana</span>
+      </button>
+      <button class="nav-item" data-view="calendario" title="Calendário">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+        <span>Calendário</span>
+      </button>
+      <button class="nav-item" data-view="disciplinas" title="Disciplinas">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+        <span>Disciplinas</span>
+      </button>
+      <button class="nav-item" data-view="historico" title="Histórico">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>
+        <span>Histórico</span>
+      </button>
+    </nav>
+
+    <div class="header-spacer"></div>
+    <div class="semester-pill">2026.2</div>
+    <div class="profile">
+      <div class="avatar">MM</div>
+      <div><strong>Marcus Maia</strong><span>Editor da turma</span></div>
+    </div>
+  </header>
+
+  <main>
+    <section id="semana-view">
+      <div class="page-title-row">
+        <div>
+          <div class="eyebrow">Visão coletiva</div>
+          <h1>Entregas da semana</h1>
+          <p class="intro">Tudo o que a turma precisa acompanhar, reunido em um só lugar.</p>
+        </div>
+        <button class="add-button" id="open-modal">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Adicionar entrega</span>
+        </button>
+      </div>
+
+      <div class="toolbar">
+        <div class="filters" aria-label="Filtros de tipo">
+          <button class="filter active" data-filter="todos">Todos</button>
+          <button class="filter" data-filter="prova">Provas</button>
+          <button class="filter" data-filter="projeto">Projetos</button>
+          <button class="filter" data-filter="aps">APS</button>
+          <button class="filter" data-filter="quiz">Quiz</button>
+        </div>
+
+        <div class="week-switcher">
+          <button class="week-button" id="prev-week" aria-label="Semana anterior">‹</button>
+          <div class="week-label"><strong id="week-range">24 a 28 de agosto</strong><span id="week-status">Semana atual</span></div>
+          <button class="week-button" id="next-week" aria-label="Próxima semana">›</button>
+        </div>
+
+        <div class="toolbar-meta"><b>8 entregas</b> · última atualização há 12 min</div>
+      </div>
+
+      <div class="board" id="board">
+        <section class="column" style="--subject-color:#3578e5">
+          <header class="column-header">
+            <div class="subject-icon">ML</div>
+            <div class="column-title"><strong>Machine Learning</strong><span>3 itens nesta semana</span></div>
+            <div class="count">3</div>
+          </header>
+          <div class="cards">
+            <article class="card" data-type="quiz">
+              <div class="card-top"><span class="tag quiz">Quiz</span><button class="menu-button">•••</button></div>
+              <h3>Quiz 02 — Regressão linear</h3>
+              <p>Conteúdo das aulas 03 e 04. Duas tentativas disponíveis.</p>
+              <div class="deadline urgent"><span><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Hoje, 23:59</span><b>8h restantes</b></div>
+              <div class="card-footer"><div class="author"><span class="mini-avatar">MM</span>Marcus · há 12 min</div><button class="link-button">Abrir <svg class="icon" viewBox="0 0 24 24"><path d="M14 3h7v7M10 14 21 3M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg></button></div>
+            </article>
+
+            <article class="card" data-type="projeto">
+              <div class="card-top"><span class="tag projeto">Projeto</span><button class="menu-button">•••</button></div>
+              <h3>Checkpoint do projeto</h3>
+              <p>Enviar notebook com preparação dos dados e primeira análise.</p>
+              <div class="deadline"><span><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>Quinta, 27/08</span><b>18:00</b></div>
+              <div class="card-footer"><div class="author"><span class="mini-avatar" style="background:#8458b3">AL</span>Ana · ontem</div><button class="link-button">Detalhes</button></div>
+            </article>
+
+            <article class="card" data-type="atividade">
+              <div class="card-top"><span class="tag atividade">Atividade</span><button class="menu-button">•••</button></div>
+              <h3>Lista — Métricas de avaliação</h3>
+              <p>Exercícios opcionais para a aula de sexta-feira.</p>
+              <div class="deadline"><span><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>Sexta, 28/08</span><b>08:00</b></div>
+              <div class="card-footer"><div class="author"><span class="mini-avatar" style="background:#25856c">JR</span>João · 2 dias</div><button class="link-button">Abrir</button></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="column" style="--subject-color:#f29a16">
+          <header class="column-header">
+            <div class="subject-icon">LP</div>
+            <div class="column-title"><strong>Linguagens e Paradigmas</strong><span>2 itens nesta semana</span></div>
+            <div class="count">2</div>
+          </header>
+          <div class="cards">
+            <article class="card" data-type="atividade">
+              <div class="card-top"><span class="tag atividade">Atividade</span><button class="menu-button">•••</button></div>
+              <h3>Exercícios de ponteiros em C</h3>
+              <p>Resolver e enviar os cinco exercícios da lista prática.</p>
+              <div class="deadline"><span><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>Quarta, 26/08</span><b>23:59</b></div>
+              <div class="card-footer"><div class="author"><span class="mini-avatar" style="background:#b56a18">PL</span>Paula · 3h</div><button class="link-button">Abrir</button></div>
+            </article>
+
+            <article class="card" data-type="quiz">
+              <div class="card-top"><span class="tag quiz">Quiz</span><button class="menu-button">•••</button></div>
+              <h3>Quiz — Structs e memória</h3>
+              <p>Questionário individual disponível no ambiente da disciplina.</p>
+              <div class="deadline"><span><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>Sexta, 28/08</span><b>17:00</b></div>
+              <div class="card-footer"><div class="author"><span class="mini-avatar" style="background:#5a6eaa">RC</span>Rafael · ontem</div><button class="link-button">Detalhes</button></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="column" style="--subject-color:#20af70">
+          <header class="column-header">
+            <div class="subject-icon">DW</div>
+            <div class="column-title"><strong>Desenvolvimento Web</strong><span>2 itens nesta semana</span></div>
+            <div class="count">2</div>
+          </header>
+          <div class="cards">
+            <article class="card" data-type="aps">
+              <div class="card-top"><span class="tag aps">APS</span><button class="menu-button">•••</button></div>
+              <h3>APS 01 — API REST</h3>
+              <p>Implementar endpoints, testes e documentação do projeto.</p>
+              <div class="deadline"><span><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>Quinta, 27/08</span><b>23:59</b></div>
+              <div class="card-footer"><div class="author"><span class="mini-avatar" style="background:#138963">GS</span>Gabriel · 5h</div><button class="link-button">GitHub</button></div>
+            </article>
+
+            <article class="card" data-type="aviso">
+              <div class="card-top"><span class="tag aviso">Aviso</span><button class="menu-button">•••</button></div>
+              <h3>Plantão de dúvidas</h3>
+              <p>Sala 302. Levar dúvidas sobre autenticação e banco de dados.</p>
+              <div class="deadline"><span><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>Quarta, 26/08</span><b>12:30</b></div>
+              <div class="card-footer"><div class="author"><span class="mini-avatar" style="background:#3c7a64">LM</span>Luiza · ontem</div><button class="link-button">Ver sala</button></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="column" style="--subject-color:#e54863">
+          <header class="column-header">
+            <div class="subject-icon">PI</div>
+            <div class="column-title"><strong>Projeto Integrador</strong><span>1 item nesta semana</span></div>
+            <div class="count">1</div>
+          </header>
+          <div class="cards">
+            <article class="card" data-type="prova">
+              <div class="card-top"><span class="tag prova">Apresentação</span><button class="menu-button">•••</button></div>
+              <h3>Demo intermediária</h3>
+              <p>Apresentação de 8 minutos e demonstração do protótipo funcional.</p>
+              <div class="deadline"><span><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>Sexta, 28/08</span><b>14:00</b></div>
+              <div class="card-footer"><div class="author"><span class="mini-avatar" style="background:#a9394c">MM</span>Marcus · 1 dia</div><button class="link-button">Roteiro</button></div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="view-placeholder" id="calendario-view"><div><div class="placeholder-icon">🗓️</div><h2>Calendário da turma</h2><p>Aqui as mesmas entregas serão organizadas por dia e mês.</p></div></section>
+    <section class="view-placeholder" id="disciplinas-view"><div><div class="placeholder-icon">📚</div><h2>Disciplinas e anotações</h2><p>Links, referências, textos compartilhados e histórico de edição por matéria.</p></div></section>
+    <section class="view-placeholder" id="historico-view"><div><div class="placeholder-icon">🕘</div><h2>Histórico de alterações</h2><p>Registro de quem criou, editou ou removeu cada informação.</p></div></section>
+  </main>
+
+  <div class="modal-backdrop" id="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <form class="modal" id="delivery-form">
+      <div class="modal-head"><h2 id="modal-title">Nova entrega</h2><button type="button" class="close" id="close-modal">×</button></div>
+      <div class="form-grid">
+        <div class="field full"><label for="title">Título</label><input id="title" placeholder="Ex.: Quiz 03 — Classificação" required /></div>
+        <div class="field"><label for="subject">Disciplina</label><select id="subject"><option>Machine Learning</option><option>Linguagens e Paradigmas</option><option>Desenvolvimento Web</option><option>Projeto Integrador</option></select></div>
+        <div class="field"><label for="type">Tipo</label><select id="type"><option>Atividade</option><option>Quiz</option><option>APS</option><option>Projeto</option><option>Prova</option><option>Aviso</option></select></div>
+        <div class="field"><label for="date">Data</label><input id="date" type="date" /></div>
+        <div class="field"><label for="time">Horário</label><input id="time" type="time" /></div>
+        <div class="field full"><label for="description">Descrição</label><textarea id="description" placeholder="Informações importantes para a turma"></textarea></div>
+        <div class="field full"><label for="url">Link ou fonte</label><input id="url" type="url" placeholder="https://..." /></div>
+      </div>
+      <div class="modal-actions"><button type="button" class="secondary" id="cancel-modal">Cancelar</button><button type="submit" class="primary">Adicionar entrega</button></div>
+    </form>
+  </div>
+
+  <script>
+    const navItems = document.querySelectorAll('.nav-item');
+    const views = ['semana', 'calendario', 'disciplinas', 'historico'];
+    navItems.forEach(item => item.addEventListener('click', () => {
+      navItems.forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+      views.forEach(view => {
+        const el = document.getElementById(`${view}-view`);
+        if (view === 'semana') el.style.display = item.dataset.view === view ? 'block' : 'none';
+        else el.classList.toggle('active', item.dataset.view === view);
+      });
+    }));
+
+    document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => {
+      document.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
+      button.classList.add('active');
+      const filter = button.dataset.filter;
+      document.querySelectorAll('.card').forEach(card => {
+        card.dataset.hidden = filter !== 'todos' && card.dataset.type !== filter;
+      });
+    }));
+
+    const weeks = [
+      ['17 a 21 de agosto', 'Semana anterior'],
+      ['24 a 28 de agosto', 'Semana atual'],
+      ['31 de agosto a 4 de setembro', 'Próxima semana']
+    ];
+    let weekIndex = 1;
+    function renderWeek() {
+      document.getElementById('week-range').textContent = weeks[weekIndex][0];
+      document.getElementById('week-status').textContent = weeks[weekIndex][1];
+      document.getElementById('board').style.opacity = weekIndex === 1 ? '1' : '.52';
+    }
+    document.getElementById('prev-week').addEventListener('click', () => { weekIndex = Math.max(0, weekIndex - 1); renderWeek(); });
+    document.getElementById('next-week').addEventListener('click', () => { weekIndex = Math.min(2, weekIndex + 1); renderWeek(); });
+
+    const backdrop = document.getElementById('modal-backdrop');
+    const openModal = () => backdrop.classList.add('open');
+    const closeModal = () => backdrop.classList.remove('open');
+    document.getElementById('open-modal').addEventListener('click', openModal);
+    document.getElementById('close-modal').addEventListener('click', closeModal);
+    document.getElementById('cancel-modal').addEventListener('click', closeModal);
+    backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
+    document.getElementById('delivery-form').addEventListener('submit', e => { e.preventDefault(); closeModal(); alert('No produto final, a entrega seria salva e registrada no histórico.'); });
+  </script>
+</body>
+</html>
