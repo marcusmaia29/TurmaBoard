@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, type CSSProperties, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Archive, ArchiveRestore, ChevronDown, ChevronUp, ExternalLink, Link2, Plus, Save, Trash2 } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
@@ -201,7 +201,7 @@ export default function SubjectsPage() {
                   type="button"
                   onClick={() => { setSelectedId(subject.id); setDraft(null); }}
                 >
-                  <span style={{ backgroundColor: subject.color }}>{subject.code}</span>
+                  <span style={{ "--subject-color": subject.color } as CSSProperties}>{subject.code}</span>
                   <span><strong>{subject.name}</strong><small>{subject.subject_links.length} links salvos</small></span>
                 </button>
                 {isAdmin && (
@@ -217,7 +217,7 @@ export default function SubjectsPage() {
           <section className="subject-details">
             <form onSubmit={handleSave}>
               <div className="subject-title-row">
-                <span className="large-subject-code" style={{ backgroundColor: selectedSubject.color }}>{selectedSubject.code}</span>
+                <span className="large-subject-code" style={{ "--subject-color": selectedSubject.color } as CSSProperties}>{selectedSubject.code}</span>
                 <div><h2>{selectedSubject.name}</h2><p>Atualizada em {new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(selectedSubject.updated_at))}</p></div>
                 {isAdmin && (
                   <div className="subject-main-actions">

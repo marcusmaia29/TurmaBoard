@@ -34,7 +34,7 @@ export function AppShell() {
     <div className="app-shell">
       <header className="app-header">
         <NavLink className="brand" to="/week" aria-label="TurmaBoard — página inicial">
-          <span className="brand-mark">TB</span>
+          <span className="brand-mark" aria-hidden="true"><CalendarDays /></span>
           <span className="brand-copy">
             <strong>TurmaBoard</strong>
             <small>Ciência da Computação · 2026.2</small>
