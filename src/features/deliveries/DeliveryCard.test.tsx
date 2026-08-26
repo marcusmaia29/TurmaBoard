@@ -13,12 +13,15 @@ const delivery: DeliveryWithSubject = {
   source_url: "https://example.com/aps",
   status: "active",
   created_by: null,
+  created_by_name: "Admin TurmaBoard",
   updated_by: null,
+  updated_by_name: "Admin TurmaBoard",
   created_at: "2026-08-25T12:00:00-03:00",
   updated_at: "2026-08-25T12:00:00-03:00",
   deleted_at: null,
   subject: {
     id: "subject-id",
+    archived_at: null,
     name: "Desenvolvimento Web",
     code: "DW",
     color: "#168C62",
@@ -45,7 +48,7 @@ describe("DeliveryCard", () => {
     const onEdit = vi.fn();
     render(<DeliveryCard delivery={delivery} isAdmin onEdit={onEdit} onDelete={() => undefined} />);
     await user.click(screen.getByRole("button", { name: /ações/i }));
-    await user.click(screen.getByRole("button", { name: "Editar" }));
+    await user.click(screen.getByRole("menuitem", { name: "Editar" }));
     expect(onEdit).toHaveBeenCalledWith(delivery);
   });
 });
