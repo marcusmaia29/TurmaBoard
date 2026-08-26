@@ -249,6 +249,8 @@ h1, h2, h3, p { text-wrap: pretty; }
 .about-card p { max-width: 65ch; margin: .4rem 0 0; color: var(--color-muted); font-size: .84rem; line-height: 1.6; }
 .about-card .primary-button { white-space: nowrap; }
 
+.grade-image { width: 100%; height: auto; display: block; margin: 0 auto; }
+
 .login-page { min-height: 100vh; display: grid; grid-template-columns: minmax(20rem, 32rem) 1fr; background: white; }
 .login-panel { width: 100%; max-width: 27rem; margin: auto; padding: 2rem; }
 .back-link { min-height: 2.75rem; margin-bottom: 3rem; padding: 0 .4rem; display: flex; align-items: center; gap: .4rem; color: var(--color-muted); background: none; border: 0; font-size: .76rem; font-weight: 650; }
