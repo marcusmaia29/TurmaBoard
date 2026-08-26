@@ -8,6 +8,7 @@ const WeekPage = lazy(() => import("./features/deliveries/WeekPage"));
 const CalendarPage = lazy(() => import("./features/calendar/CalendarPage"));
 const SubjectsPage = lazy(() => import("./features/subjects/SubjectsPage"));
 const HistoryPage = lazy(() => import("./features/history/HistoryPage"));
+const AboutPage = lazy(() => import("./features/about/AboutPage"));
 const LoginPage = lazy(() => import("./features/auth/LoginPage"));
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/subjects" element={<SubjectsPage />} />
             <Route path="/history" element={<HistoryPage />} />
+            <Route path="/about" element={<AboutPage />} />
           </Route>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<Navigate to="/week" replace />} />
