@@ -4,6 +4,8 @@ TurmaBoard is a shared academic board for one undergraduate class. Visitors can
 read weekly deadlines, the monthly calendar, course references, and the audit
 history. A shared administrator account can maintain all published content.
 
+**Production:** [Access TurmaBoard](https://turmaboard.vercel.app)
+
 Development status and release work are tracked in [TODO.md](./TODO.md).
 
 The interface is written in Brazilian Portuguese. Source code, database names,
