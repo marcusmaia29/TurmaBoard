@@ -1,7 +1,9 @@
-import { BookOpen, CalendarDays, History, Info, LayoutDashboard, LogIn, LogOut, ShieldCheck } from "lucide-react";
+import { BookOpen, CalendarDays, History, Info, LayoutDashboard, LogIn, LogOut, RefreshCw, ShieldCheck, UserRound, WifiOff } from "lucide-react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/AuthContext";
 import { isSupabaseConfigured } from "../lib/supabase";
+import { useToast } from "./ToastContext";
+import { useRealtimeStatus } from "../features/realtime/realtime.context";
 
 const navigation = [
   { to: "/week", label: "Semana", icon: LayoutDashboard },
@@ -12,12 +14,19 @@ const navigation = [
 ];
 
 export function AppShell() {
-  const { isAdmin, signOut } = useAuth();
+  const { session, isAdmin, isLoading, authError, signOut } = useAuth();
+  const { status: realtimeStatus, retry: retryRealtime } = useRealtimeStatus();
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
   async function handleSignOut() {
-    await signOut();
-    navigate("/week");
+    try {
+      await signOut();
+      navigate("/week");
+      showToast("Sessão encerrada.");
+    } catch {
+      showToast("Não foi possível sair. Tente novamente.", "error");
+    }
   }
 
   return (
@@ -41,9 +50,14 @@ export function AppShell() {
         </nav>
 
         <div className="account-area">
-          {isAdmin ? (
+          {isLoading ? (
+            <span className="account-status" aria-live="polite">Verificando acesso…</span>
+          ) : session ? (
             <>
-              <span className="admin-badge"><ShieldCheck aria-hidden="true" /> Admin</span>
+              <span className={isAdmin ? "admin-badge" : "member-badge"}>
+                {isAdmin ? <ShieldCheck aria-hidden="true" /> : <UserRound aria-hidden="true" />}
+                {isAdmin ? "Admin" : "Leitor"}
+              </span>
               <button className="icon-button" type="button" onClick={() => void handleSignOut()} title="Sair">
                 <LogOut aria-hidden="true" />
                 <span className="sr-only">Sair</span>
@@ -60,6 +74,14 @@ export function AppShell() {
       {!isSupabaseConfigured && (
         <div className="configuration-banner" role="status">
           Configure as variáveis do Supabase para carregar os dados da turma.
+        </div>
+      )}
+      {authError && session && <div className="configuration-banner error-banner" role="alert">{authError}</div>}
+      {realtimeStatus === "disconnected" && (
+        <div className="sync-banner" role="status">
+          <WifiOff aria-hidden="true" />
+          <span>Atualização ao vivo desconectada. Os dados continuam disponíveis.</span>
+          <button type="button" onClick={retryRealtime}><RefreshCw aria-hidden="true" /> Tentar reconectar</button>
         </div>
       )}
 
