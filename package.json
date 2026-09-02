@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "check": "npm run lint -- --max-warnings=0 && npm test && npm run build",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
