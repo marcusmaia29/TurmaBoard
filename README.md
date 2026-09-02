@@ -9,6 +9,17 @@ Development status and release work are tracked in [TODO.md](./TODO.md).
 The interface is written in Brazilian Portuguese. Source code, database names,
 tests, and technical documentation are written in English.
 
+## Documentation
+
+- [Product principles](./PRODUCT.md)
+- [Architecture](./docs/ARCHITECTURE.md)
+- [Database and Supabase](./docs/DATABASE.md)
+- [Testing and verification](./docs/TESTING.md)
+- [Contribution workflow](./CONTRIBUTING.md)
+- [Original product brief](./VISAO_DO_PROJETO.md), retained as historical context
+
+Repository instructions for coding agents live in [AGENTS.md](./AGENTS.md).
+
 ## Stack
 
 - React and TypeScript
@@ -81,11 +92,12 @@ role key to a `VITE_` environment variable.
 ## Quality checks
 
 ```powershell
-npm run lint -- --max-warnings=0
-npm test
-npm run build
+npm run check
 npm run preview
 ```
+
+See [Testing and verification](./docs/TESTING.md) for targeted and
+database-specific checks.
 
 ## Vercel deployment
 

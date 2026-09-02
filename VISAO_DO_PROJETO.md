@@ -1,5 +1,10 @@
 # TurmaBoard — Visão do Projeto
 
+> [!NOTE]
+> Este é o briefing original do produto e preserva decisões consideradas no
+> início do projeto. Para o comportamento atual, consulte `PRODUCT.md`,
+> `docs/ARCHITECTURE.md`, `docs/DATABASE.md` e as migrations versionadas.
+>
 > Documento de orientação funcional e de produto.
 >
 > Este arquivo explica o propósito do TurmaBoard, a experiência esperada e o escopo da primeira versão. Decisões de tecnologia, arquitetura e infraestrutura devem ser documentadas separadamente pelo responsável pela implementação.
