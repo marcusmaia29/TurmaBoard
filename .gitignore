@@ -8,3 +8,5 @@ coverage/
 .supabase/
 supabase/.temp/
 supabase/.branches/
+.vercel/
+.impeccable/
