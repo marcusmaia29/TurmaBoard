@@ -145,6 +145,15 @@ The browser only ever receives the Supabase project URL and the publishable key.
 Never put a secret or service-role key behind a `VITE_` variable — Vite inlines
 those into the client bundle.
 
+Lesson-note images use a public Storage bucket whose writes remain protected by
+RLS. Provision or reconcile it through the Storage API with a server-side secret
+(never expose this key to Vite):
+
+```bash
+SUPABASE_URL=https://PROJECT.supabase.co \
+SUPABASE_SECRET_KEY=YOUR_SERVER_SECRET npm run storage:provision
+```
+
 ## Quality checks
 
 ```powershell

@@ -20,6 +20,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "storage:provision": "node scripts/provision-lesson-note-storage.mjs",
     "types:generate": "supabase gen types typescript --local > src/lib/database.generated.ts",
     "preview": "vite preview"
   },
@@ -27,10 +28,14 @@
     "@supabase/supabase-js": "^2.112.4",
     "@tanstack/react-query": "^5.102.3",
     "fast-xml-parser": "^5.11.1",
+    "katex": "0.18.5",
     "lucide-react": "^0.534.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.2"
+    "react-markdown": "10.1.0",
+    "react-router-dom": "^7.18.2",
+    "rehype-sanitize": "6.0.0",
+    "remark-gfm": "4.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

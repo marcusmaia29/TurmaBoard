@@ -137,6 +137,129 @@ export type Database = {
           },
         ]
       }
+      lesson_note_images: {
+        Row: {
+          alt_text: string
+          caption: string | null
+          created_at: string
+          height: number
+          id: string
+          lesson_note_id: string
+          mime_type: string
+          original_name: string
+          position: number
+          size_bytes: number
+          storage_path: string
+          width: number
+        }
+        Insert: {
+          alt_text: string
+          caption?: string | null
+          created_at?: string
+          height: number
+          id?: string
+          lesson_note_id: string
+          mime_type: string
+          original_name: string
+          position?: number
+          size_bytes: number
+          storage_path: string
+          width: number
+        }
+        Update: {
+          alt_text?: string
+          caption?: string | null
+          created_at?: string
+          height?: number
+          id?: string
+          lesson_note_id?: string
+          mime_type?: string
+          original_name?: string
+          position?: number
+          size_bytes?: number
+          storage_path?: string
+          width?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_note_images_lesson_note_id_fkey"
+            columns: ["lesson_note_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_notes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_notes: {
+        Row: {
+          content: string
+          content_format: Database["public"]["Enums"]["lesson_note_format"]
+          created_at: string
+          created_by: string | null
+          created_by_name: string
+          deleted_at: string | null
+          id: string
+          occurred_at: string
+          subject_id: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+          updated_by_name: string
+        }
+        Insert: {
+          content: string
+          content_format: Database["public"]["Enums"]["lesson_note_format"]
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string
+          deleted_at?: string | null
+          id?: string
+          occurred_at: string
+          subject_id: string
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          updated_by_name?: string
+        }
+        Update: {
+          content?: string
+          content_format?: Database["public"]["Enums"]["lesson_note_format"]
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string
+          deleted_at?: string | null
+          id?: string
+          occurred_at?: string
+          subject_id?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          updated_by_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_notes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_notes_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_notes_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -255,6 +378,7 @@ export type Database = {
       audit_action: "created" | "updated" | "deleted"
       delivery_status: "active" | "cancelled"
       delivery_type: "quiz" | "exam" | "aps" | "project" | "activity" | "notice"
+      lesson_note_format: "markdown" | "latex"
       user_role: "admin" | "member"
     }
     CompositeTypes: {
@@ -386,6 +510,7 @@ export const Constants = {
       audit_action: ["created", "updated", "deleted"],
       delivery_status: ["active", "cancelled"],
       delivery_type: ["quiz", "exam", "aps", "project", "activity", "notice"],
+      lesson_note_format: ["markdown", "latex"],
       user_role: ["admin", "member"],
     },
   },
