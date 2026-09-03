@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import handler from "./agenda.js";
+import handler from "../../../api/agenda.js";
 
 const xml = `<ArrayOfCalendarioEvento><CalendarioEvento>
   <data>02/09/2026</data><tipoaula>Aula</tipoaula><horainicio>08:00</horainicio><horatermino>09:00</horatermino>

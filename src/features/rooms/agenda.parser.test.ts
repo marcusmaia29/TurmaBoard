@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseAgendaXml } from "./agenda.js";
+import { parseAgendaXml } from "../../../api/_lib/agenda.js";
 
 const xml = `<?xml version="1.0" encoding="utf-8"?>
 <ArrayOfCalendarioEvento>
