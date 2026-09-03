@@ -2,10 +2,21 @@
   "name": "turmaboard",
   "private": true,
   "version": "0.1.0",
+  "description": "A shared academic board for class deadlines, schedules, and course resources.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marcusmaia29/TurmaBoard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/marcusmaia29/TurmaBoard/issues"
+  },
+  "homepage": "https://github.com/marcusmaia29/TurmaBoard#readme",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "check": "npm run lint -- --max-warnings=0 && npm test && npm run build",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
