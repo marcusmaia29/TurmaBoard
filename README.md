@@ -1,5 +1,8 @@
 # TurmaBoard
 
+[![CI](https://github.com/marcusmaia29/TurmaBoard/actions/workflows/ci.yml/badge.svg)](https://github.com/marcusmaia29/TurmaBoard/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+
 TurmaBoard is a shared academic board for one undergraduate class. Visitors can
 read weekly deadlines, the monthly calendar, course references, and the audit
 history. A shared administrator account can maintain all published content.
@@ -113,3 +116,17 @@ Before the first production deployment:
 4. Create the shared administrator account.
 5. Configure the Vercel environment variables.
 6. Deploy and verify all routes with a direct page refresh.
+
+## Contributing
+
+Contributions are welcome. Before opening a pull request, read the
+[contribution guide](./CONTRIBUTING.md) and the
+[code of conduct](./CODE_OF_CONDUCT.md). Use the repository issue templates to
+report a bug, suggest an improvement, or ask a project question.
+
+Please report suspected vulnerabilities privately according to the
+[security policy](./SECURITY.md).
+
+## License
+
+TurmaBoard is available under the [MIT License](./LICENSE).
