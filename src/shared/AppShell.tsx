@@ -1,4 +1,4 @@
-import { BookOpen, CalendarDays, History, Info, LayoutDashboard, LogIn, LogOut, RefreshCw, ShieldCheck, Table2, UserRound, WifiOff } from "lucide-react";
+import { BookOpen, CalendarDays, Github, History, LayoutDashboard, LogIn, LogOut, RefreshCw, ShieldCheck, Table2, UserRound, WifiOff } from "lucide-react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/AuthContext";
 import { isSupabaseConfigured } from "../lib/supabase";
@@ -11,7 +11,6 @@ const navigation = [
   { to: "/subjects", label: "Disciplinas", icon: BookOpen },
   { to: "/history", label: "Histórico", icon: History },
   { to: "/grade", label: "Grade", icon: Table2 },
-  { to: "/about", label: "Sobre", icon: Info },
 ];
 
 export function AppShell() {
@@ -48,6 +47,16 @@ export function AppShell() {
               <span>{label}</span>
             </NavLink>
           ))}
+          <a
+            className="nav-link"
+            href="https://github.com/marcusmaia29/TurmaBoard"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Abrir o TurmaBoard no GitHub"
+            title="GitHub"
+          >
+            <Github aria-hidden="true" />
+          </a>
         </nav>
 
         <div className="account-area">
