@@ -1,4 +1,4 @@
-import { BookOpen, CalendarDays, Github, History, LayoutDashboard, LogIn, LogOut, RefreshCw, ShieldCheck, Table2, UserRound, WifiOff } from "lucide-react";
+import { BookOpen, Building2, CalendarDays, Github, History, LayoutDashboard, LogIn, LogOut, RefreshCw, ShieldCheck, Table2, UserRound, WifiOff } from "lucide-react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/AuthContext";
 import { isSupabaseConfigured } from "../lib/supabase";
@@ -11,6 +11,7 @@ const navigation = [
   { to: "/subjects", label: "Disciplinas", icon: BookOpen },
   { to: "/history", label: "Histórico", icon: History },
   { to: "/grade", label: "Grade", icon: Table2 },
+  { to: "/rooms", label: "Salas", icon: Building2 },
 ];
 
 export function AppShell() {
