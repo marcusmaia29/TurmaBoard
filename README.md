@@ -3,79 +3,125 @@
 [![CI](https://github.com/marcusmaia29/TurmaBoard/actions/workflows/ci.yml/badge.svg)](https://github.com/marcusmaia29/TurmaBoard/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-TurmaBoard is a shared academic board for one undergraduate class. Visitors can
-read weekly deadlines, the monthly calendar, course references, and the audit
-history. A shared administrator account can maintain all published content.
+TurmaBoard is a shared academic board for one undergraduate class. Anyone can
+read the weekly deadlines, the monthly calendar, the class timetable, room
+availability, course references, and the change history without signing in.
+Administrators maintain the published content.
 
-**Production:** [Access TurmaBoard](https://turmaboard.vercel.app)
-
-Development status and release work are tracked in [TODO.md](./TODO.md).
+**Production:** [turmaboard.vercel.app](https://turmaboard.vercel.app)
 
 The interface is written in Brazilian Portuguese. Source code, database names,
 tests, and technical documentation are written in English.
 
+## What the application does
+
+| Route | Name in the interface | Purpose |
+| --- | --- | --- |
+| `/week` | Semana | Weekly board, one column per subject, with administration |
+| `/calendar` | Calendário | Monthly view of the same delivery records |
+| `/subjects` | Disciplinas | Subject notes, official links, and ordering |
+| `/history` | Histórico | Paginated audit trail of every content change |
+| `/grade` | Grade | Static weekly class timetable |
+| `/rooms` | Salas | Room availability, read from the Insper agenda feed |
+| `/login` | — | Administrator sign-in |
+
+`/week`, `/calendar`, `/subjects` and `/history` are backed by Supabase.
+`/grade` is static data in the repository. `/rooms` reads a public upstream feed
+through the project's only serverless endpoint.
+
 ## Documentation
 
-- [Product principles](./PRODUCT.md)
-- [Architecture](./docs/ARCHITECTURE.md)
-- [Database and Supabase](./docs/DATABASE.md)
-- [Testing and verification](./docs/TESTING.md)
-- [Contribution workflow](./CONTRIBUTING.md)
-- [Original product brief](./VISAO_DO_PROJETO.md), retained as historical context
+- [Product principles](./PRODUCT.md) — positioning and design constraints
+- [Design system](./DESIGN.md) — colors, typography, elevation, components
+- [Architecture](./docs/ARCHITECTURE.md) — runtime structure and boundaries
+- [Database and Supabase](./docs/DATABASE.md) — schema, roles, RLS, migrations
+- [Rooms and the agenda feed](./docs/AGENDA.md) — the serverless endpoint
+- [Testing and verification](./docs/TESTING.md) — what to run before handoff
+- [Contribution workflow](./CONTRIBUTING.md) — setup, branches, commits, reviews
+- [Architecture decisions](./docs/decisions/) — the reasoning behind key choices
+- [Original product brief](./VISAO_DO_PROJETO.md) — historical context, not a contract
 
 Repository instructions for coding agents live in [AGENTS.md](./AGENTS.md).
+Release status is tracked in [TODO.md](./TODO.md).
 
 ## Stack
 
-- React and TypeScript
-- Vite and Tailwind CSS
-- TanStack Query
-- Supabase Database, Auth, Row Level Security, and Realtime
-- Vercel static hosting
+- React 19 and TypeScript on Vite
+- Tailwind CSS v4, used through hand-authored semantic classes
+- TanStack Query for server state
+- Supabase for Database, Auth, Row Level Security, and Realtime
+- Vercel for static hosting plus one serverless function
+
+There is no application server of our own. The browser talks to Supabase
+directly, so **Row Level Security is the authorization boundary**. The single
+exception is `api/agenda.ts`, a read-only proxy that holds no credentials.
+
+## Repository layout
+
+```text
+api/            Vercel serverless function: the Insper agenda proxy
+docs/           Architecture, database, testing, and decision records
+src/features/   One folder per product capability, with its service and tests
+src/lib/        Supabase client, database types, date helpers, query keys
+src/shared/     Shell, dialogs, toasts, and loading/empty/error states
+supabase/       Migrations and seed data
+```
 
 ## Local development
 
-Requirements:
-
-- Node.js 22 or newer
-- Docker Desktop
-
-Install dependencies and start Supabase:
+Requirements: Node.js 22 or newer, and Docker Desktop for the local database.
 
 ```powershell
 npm install
 npx supabase start
 ```
 
-Copy the API URL and publishable key shown by Supabase into `.env.local`:
+Copy the API URL and publishable key printed by Supabase into `.env.local`:
 
 ```dotenv
 VITE_SUPABASE_URL=http://127.0.0.1:54321
 VITE_SUPABASE_PUBLISHABLE_KEY=your-local-publishable-key
 ```
 
-Start the application:
+Then start the application:
 
 ```powershell
 npm run dev
 ```
 
-The local database applies every migration in `supabase/migrations/` and then
-loads `supabase/seed.sql`.
+`npx supabase db reset` applies every migration in `supabase/migrations/` and
+then loads `supabase/seed.sql`. Supabase Studio runs at `http://127.0.0.1:54323`.
 
-## Shared administrator account
+Without the environment variables the app still renders: `isSupabaseConfigured`
+drives a banner in the shell instead of crashing, which keeps interface work
+possible without a database.
 
-Public sign-up is disabled. Create the shared account from **Authentication →
-Users** in the Supabase dashboard. The database trigger creates its
-`Admin TurmaBoard` profile automatically.
+> The Vite dev server does not serve `api/`. Requests to `/api/agenda` fall
+> through to the SPA rewrite and the Salas screen shows its error state. To
+> exercise the endpoint locally run `npx vercel dev` instead of `npm run dev`.
 
-For local development, open Supabase Studio at `http://127.0.0.1:54323`. For
-production, create the account in the hosted project after applying migrations.
-Do not commit or expose the shared password.
+## Accounts and roles
+
+Public sign-up is disabled (`enable_signup = false` in `supabase/config.toml`).
+Accounts are created by a maintainer from **Authentication → Users** in the
+Supabase dashboard, or through the Auth Admin API.
+
+`profiles.role` is `admin` or `member`, and the `auth_user_created` trigger
+always creates new profiles as **`member`**. Granting administration is a
+deliberate, separate step:
+
+```sql
+update public.profiles set role = 'admin' where id = '<user id>';
+```
+
+The profile name comes from the account's `display_name` user metadata, so set
+it when creating the account. See [docs/DATABASE.md](./docs/DATABASE.md) for the
+authorization model.
+
+Never commit credentials. `.env`, `.env.local`, and `.env.*.local` are ignored;
+use `.env.example` to document new public configuration values.
 
 ## Database workflow
-
-Create and test schema changes locally:
 
 ```powershell
 npx supabase migration new descriptive_change_name
@@ -83,51 +129,47 @@ npx supabase db reset
 npm run types:generate
 ```
 
-Apply committed migrations to the linked hosted project:
+`npm run types:generate` rewrites the checked-in `src/lib/database.generated.ts`.
+Run it after every migration and commit the result, because every application
+type derives from that file.
+
+Applying migrations to the hosted project requires maintainer access and
+explicit authorization:
 
 ```powershell
 npx supabase link
 npx supabase db push
 ```
 
-The browser receives only the Supabase project URL and publishable key. Row
-Level Security is the authorization boundary. Never add a secret or service
-role key to a `VITE_` environment variable.
+The browser only ever receives the Supabase project URL and the publishable key.
+Never put a secret or service-role key behind a `VITE_` variable — Vite inlines
+those into the client bundle.
 
 ## Quality checks
 
 ```powershell
-npm run check
-npm run preview
+npm run check      # lint with zero warnings, Vitest, and the production build
 ```
 
-See [Testing and verification](./docs/TESTING.md) for targeted and
-database-specific checks.
+The same command runs in CI on every pull request. See
+[docs/TESTING.md](./docs/TESTING.md) for targeted and database-specific checks.
 
-## Vercel deployment
+## Deployment
 
-Import the Git repository in Vercel and add the two public Supabase environment
-variables. Use the default Vite build command (`npm run build`) and output
-directory (`dist`). `vercel.json` provides SPA rewrites and cache headers.
-
-Before the first production deployment:
-
-1. Create the hosted Supabase project.
-2. Link it and apply the migrations.
-3. Confirm that public sign-up is disabled.
-4. Create the shared administrator account.
-5. Configure the Vercel environment variables.
-6. Deploy and verify all routes with a direct page refresh.
+Vercel builds with `npm run build`, serves `dist/`, and deploys `api/` as a
+serverless function. `vercel.json` provides the SPA rewrites and cache headers.
+The deployment needs `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`;
+the agenda endpoint needs no configuration.
 
 ## Contributing
 
-Contributions are welcome. Before opening a pull request, read the
-[contribution guide](./CONTRIBUTING.md) and the
-[code of conduct](./CODE_OF_CONDUCT.md). Use the repository issue templates to
-report a bug, suggest an improvement, or ask a project question.
+Contributions are welcome. Read the [contribution guide](./CONTRIBUTING.md) and
+the [code of conduct](./CODE_OF_CONDUCT.md) before opening a pull request, and
+use the issue templates to report a bug, suggest an improvement, or ask a
+question.
 
-Please report suspected vulnerabilities privately according to the
-[security policy](./SECURITY.md).
+Report suspected vulnerabilities privately according to the
+[security policy](./SECURITY.md). Do not open a public issue for them.
 
 ## License
 

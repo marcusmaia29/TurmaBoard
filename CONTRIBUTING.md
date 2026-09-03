@@ -47,6 +47,7 @@ In particular:
 - product behavior belongs in `PRODUCT.md`;
 - technical boundaries belong in `docs/ARCHITECTURE.md`;
 - schema and authorization behavior belong in `docs/DATABASE.md`;
+- the rooms integration and its serverless endpoint belong in `docs/AGENDA.md`;
 - reusable agent guidance belongs in `AGENTS.md` or a narrowly scoped skill.
 
 Do not treat `VISAO_DO_PROJETO.md` as the current implementation contract. It is
