@@ -7,6 +7,8 @@ import { RealtimeProvider } from "./features/realtime/RealtimeSync";
 const WeekPage = lazy(() => import("./features/deliveries/WeekPage"));
 const CalendarPage = lazy(() => import("./features/calendar/CalendarPage"));
 const SubjectsPage = lazy(() => import("./features/subjects/SubjectsPage"));
+const SubjectNotesPage = lazy(() => import("./features/lesson-notes/SubjectNotesPage"));
+const LessonNoteEditorPage = lazy(() => import("./features/lesson-notes/LessonNoteEditorPage"));
 const HistoryPage = lazy(() => import("./features/history/HistoryPage"));
 const GradePage = lazy(() => import("./features/grade/GradePage"));
 const RoomsPage = lazy(() => import("./features/rooms/RoomsPage"));
@@ -21,6 +23,10 @@ export default function App() {
             <Route path="/week" element={<WeekPage />} />
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/subjects" element={<SubjectsPage />} />
+            <Route path="/subjects/:subjectId/notes" element={<SubjectNotesPage />} />
+            <Route path="/subjects/:subjectId/notes/new" element={<LessonNoteEditorPage />} />
+            <Route path="/subjects/:subjectId/notes/:noteId" element={<SubjectNotesPage />} />
+            <Route path="/subjects/:subjectId/notes/:noteId/edit" element={<LessonNoteEditorPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/grade" element={<GradePage />} />
             <Route path="/rooms" element={<RoomsPage />} />
