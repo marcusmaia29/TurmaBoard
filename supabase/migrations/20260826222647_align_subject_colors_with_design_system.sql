@@ -1,5 +1,7 @@
 begin;
+
 alter table public.subjects disable trigger subjects_record_audit;
+
 update public.subjects
 set color = case code
   when 'LP' then '#F97316'
@@ -11,5 +13,7 @@ set color = case code
   else color
 end
 where code in ('LP', 'ML', 'AED', 'PSGA', 'SP4', 'SHS');
+
 alter table public.subjects enable trigger subjects_record_audit;
+
 commit;

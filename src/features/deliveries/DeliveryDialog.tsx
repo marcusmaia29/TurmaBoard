@@ -1,9 +1,9 @@
-import { useEffect, useId, useState, type FormEvent } from "react";
-import { X } from "lucide-react";
+import { useState, type FormEvent } from "react";
 import type { DeliveryStatus, DeliveryType, DeliveryWithSubject, SubjectWithLinks } from "../../lib/database.types";
 import { fromFormDateTime, toDateKey, toFormDateTime } from "../../lib/date";
 import { deliveryTypeLabels, deliveryTypes } from "./delivery.constants";
 import type { DeliveryInput } from "./delivery.service";
+import { Dialog } from "../../shared/Dialog";
 
 interface FormState {
   title: string;
@@ -55,20 +55,7 @@ export function DeliveryDialog({
   onClose: () => void;
   onSubmit: (input: DeliveryInput) => Promise<void>;
 }) {
-  const titleId = useId();
   const [form, setForm] = useState(() => initialFormState(delivery, subjects));
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !isSaving) onClose();
-    };
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isSaving, onClose]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -84,22 +71,16 @@ export function DeliveryDialog({
   }
 
   return (
-    <div className="dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !isSaving) onClose(); }}>
-      <section className="dialog-panel" role="dialog" aria-modal="true" aria-labelledby={titleId}>
-        <div className="dialog-header">
-          <div>
-            <h2 id={titleId}>{delivery ? "Editar entrega" : "Nova entrega"}</h2>
-            <p>As informações serão compartilhadas com toda a turma.</p>
-          </div>
-          <button className="icon-button" type="button" onClick={onClose} disabled={isSaving} aria-label="Fechar">
-            <X aria-hidden="true" />
-          </button>
-        </div>
-
+    <Dialog
+      title={delivery ? "Editar entrega" : "Nova entrega"}
+      description="As informações serão compartilhadas com toda a turma."
+      isBusy={isSaving}
+      onClose={onClose}
+    >
         <form className="delivery-form" onSubmit={(event) => void handleSubmit(event)}>
           <label className="field field-full">
             <span>Título</span>
-            <input autoFocus maxLength={160} required value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Ex.: Quiz 03 — Classificação" />
+            <input data-autofocus maxLength={160} required value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Ex.: Quiz 03 — Classificação" />
           </label>
           <label className="field">
             <span>Disciplina</span>
@@ -145,7 +126,6 @@ export function DeliveryDialog({
             </button>
           </div>
         </form>
-      </section>
-    </div>
+    </Dialog>
   );
 }

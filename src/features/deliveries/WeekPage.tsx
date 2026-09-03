@@ -13,16 +13,18 @@ import { deliveryTypeLabels, deliveryTypes } from "./delivery.constants";
 import { createDelivery, fetchDeliveries, softDeleteDelivery, updateDelivery, type DeliveryInput } from "./delivery.service";
 import { DeliveryCard } from "./DeliveryCard";
 import { DeliveryDialog } from "./DeliveryDialog";
+import { ConfirmDialog } from "../../shared/ConfirmDialog";
 
 type DeliveryFilter = "all" | DeliveryType;
 
 export default function WeekPage() {
-  const { isAdmin, session } = useAuth();
+  const { isAdmin } = useAuth();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const [referenceDate, setReferenceDate] = useState(new Date());
   const [filter, setFilter] = useState<DeliveryFilter>("all");
   const [dialogState, setDialogState] = useState<{ open: boolean; delivery: DeliveryWithSubject | null }>({ open: false, delivery: null });
+  const [pendingDelete, setPendingDelete] = useState<DeliveryWithSubject | null>(null);
 
   const week = useMemo(() => getWeekRange(referenceDate), [referenceDate]);
   const deliveriesQuery = useQuery({
@@ -33,9 +35,9 @@ export default function WeekPage() {
 
   const saveMutation = useMutation({
     mutationFn: async (input: DeliveryInput) => {
-      if (!session) throw new Error("Faça login para editar o quadro.");
-      if (dialogState.delivery) await updateDelivery(dialogState.delivery.id, input, session.user.id);
-      else await createDelivery(input, session.user.id);
+      if (!isAdmin) throw new Error("Permissão administrativa necessária.");
+      if (dialogState.delivery) await updateDelivery(dialogState.delivery.id, input);
+      else await createDelivery(input);
     },
     onSuccess: async () => {
       setDialogState({ open: false, delivery: null });
@@ -48,12 +50,13 @@ export default function WeekPage() {
 
   const deleteMutation = useMutation({
     mutationFn: async (delivery: DeliveryWithSubject) => {
-      if (!session) throw new Error("Faça login para editar o quadro.");
-      await softDeleteDelivery(delivery.id, session.user.id);
+      if (!isAdmin) throw new Error("Permissão administrativa necessária.");
+      await softDeleteDelivery(delivery.id);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["deliveries"] });
       await queryClient.invalidateQueries({ queryKey: ["history"] });
+      setPendingDelete(null);
       showToast("Entrega removida do quadro.");
     },
     onError: () => showToast("Não foi possível remover a entrega.", "error"),
@@ -69,9 +72,7 @@ export default function WeekPage() {
   }
 
   function requestDelete(delivery: DeliveryWithSubject) {
-    if (window.confirm(`Remover “${delivery.title}”? A ação ficará registrada no histórico.`)) {
-      deleteMutation.mutate(delivery);
-    }
+    setPendingDelete(delivery);
   }
 
   const subjects = subjectsQuery.data ?? [];
@@ -140,6 +141,16 @@ export default function WeekPage() {
           isSaving={saveMutation.isPending}
           onClose={() => setDialogState({ open: false, delivery: null })}
           onSubmit={async (input) => saveMutation.mutateAsync(input)}
+        />
+      )}
+      {pendingDelete && (
+        <ConfirmDialog
+          title={`Remover “${pendingDelete.title}”?`}
+          description="A entrega sairá do quadro, mas a ação continuará registrada no histórico."
+          confirmLabel="Remover entrega"
+          isPending={deleteMutation.isPending}
+          onCancel={() => setPendingDelete(null)}
+          onConfirm={() => deleteMutation.mutate(pendingDelete)}
         />
       )}
     </div>

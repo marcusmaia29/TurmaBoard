@@ -1,4 +1,5 @@
 begin;
+
 -- The original trigger tried to access OLD.deleted_at for every table. Links
 -- and subjects do not have that column, so their DELETE operations failed.
 create or replace function public.record_audit_log()
@@ -62,7 +63,9 @@ begin
   return coalesce(new, old);
 end;
 $$;
+
 revoke execute on function public.record_audit_log() from public, anon, authenticated;
+
 -- Remove the demo deadlines before reusing the former DW and PI records.
 -- Soft deletion keeps the audit trail and prevents incorrect deadlines from
 -- being displayed under the new subjects.
@@ -77,10 +80,12 @@ where deleted_at is null
     or source_url like 'https://example.com/%'
     or source_url like 'https://github.com/example/%'
   );
+
 -- Remove only placeholder links. Real links created after the seed are kept.
 delete from public.subject_links
 where url like 'https://example.com/%'
    or url like 'https://github.com/example/%';
+
 update public.subjects
 set
   name = 'Algoritmos e Estruturas de Dados',
@@ -92,6 +97,7 @@ set
   platform_url = null,
   repository_url = null
 where id = '33333333-3333-4333-8333-333333333333';
+
 update public.subjects
 set
   name = 'Linguagens e Paradigmas',
@@ -103,6 +109,7 @@ set
   platform_url = null,
   repository_url = null
 where id = '22222222-2222-4222-8222-222222222222';
+
 update public.subjects
 set
   name = 'Machine Learning',
@@ -114,6 +121,7 @@ set
   platform_url = null,
   repository_url = null
 where id = '11111111-1111-4111-8111-111111111111';
+
 update public.subjects
 set
   name = 'Projeto de Software e Gestão Ágil',
@@ -125,6 +133,7 @@ set
   platform_url = null,
   repository_url = null
 where id = '44444444-4444-4444-8444-444444444444';
+
 insert into public.subjects (id, name, code, color, position, notes)
 values
   (
@@ -143,10 +152,12 @@ values
     6,
     'Blackboard: 202662.GRCIECOMP_202262_014.SISTHARDSOFT_4A.'
   );
+
 -- This real SHS handout had previously been saved under the demo PI subject.
 update public.subject_links
 set subject_id = '66666666-6666-4666-8666-666666666666',
     position = 1
 where subject_id = '44444444-4444-4444-8444-444444444444'
   and url = 'https://insper.github.io/SistemasHardwareSoftwareBCC/';
+
 commit;

@@ -1,24 +1,31 @@
 begin;
+
 alter table public.subjects
   add column archived_at timestamptz;
+
 alter table public.subjects
   add constraint subjects_name_length check (char_length(trim(name)) between 1 and 120),
   add constraint subjects_code_length check (char_length(trim(code)) between 1 and 8);
+
 create index subjects_active_position_idx
 on public.subjects(position)
 where archived_at is null;
+
 drop policy if exists subjects_public_read on public.subjects;
 drop policy if exists subject_links_public_read on public.subject_links;
 drop policy if exists deliveries_anon_read on public.deliveries;
 drop policy if exists deliveries_authenticated_read on public.deliveries;
+
 create policy subjects_anon_read
 on public.subjects for select
 to anon
 using (archived_at is null);
+
 create policy subjects_authenticated_read
 on public.subjects for select
 to authenticated
 using (archived_at is null or (select private.is_admin()));
+
 create policy subject_links_anon_read
 on public.subject_links for select
 to anon
@@ -29,6 +36,7 @@ using (
       and subjects.archived_at is null
   )
 );
+
 create policy subject_links_authenticated_read
 on public.subject_links for select
 to authenticated
@@ -40,6 +48,7 @@ using (
   )
   or (select private.is_admin())
 );
+
 create policy deliveries_anon_read
 on public.deliveries for select
 to anon
@@ -51,6 +60,7 @@ using (
       and subjects.archived_at is null
   )
 );
+
 create policy deliveries_authenticated_read
 on public.deliveries for select
 to authenticated
@@ -65,6 +75,7 @@ using (
   )
   or (select private.is_admin())
 );
+
 create or replace function private.record_audit_log()
 returns trigger
 language plpgsql
@@ -141,7 +152,9 @@ begin
   return coalesce(new, old);
 end;
 $$;
+
 revoke execute on function private.record_audit_log() from public, anon, authenticated;
+
 create or replace function public.reorder_subjects(subject_ids uuid[])
 returns void
 language plpgsql
@@ -181,6 +194,8 @@ begin
   where subjects.id = ordered.id;
 end;
 $$;
+
 revoke execute on function public.reorder_subjects(uuid[]) from public, anon;
 grant execute on function public.reorder_subjects(uuid[]) to authenticated;
+
 commit;

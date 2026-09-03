@@ -1,44 +1,24 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, ExternalLink, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import { PageHeader } from "../../shared/PageHeader";
 import { ErrorState, LoadingSkeleton } from "../../shared/feedback";
-import { addDays, formatDeadline, formatMonthTitle, getMonthRange, shiftMonth, toDateKey } from "../../lib/date";
+import { formatDeadline, formatMonthTitle, getMonthRange, shiftMonth, toDateKey } from "../../lib/date";
 import { queryKeys } from "../../lib/queryKeys";
 import type { DeliveryWithSubject } from "../../lib/database.types";
 import { fetchDeliveries } from "../deliveries/delivery.service";
 import { deliveryTypeLabels } from "../deliveries/delivery.constants";
+import { Dialog } from "../../shared/Dialog";
+import { getCalendarKeys, getCalendarQueryRange } from "./calendar.utils";
 
 const weekDayLabels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 
-function getCalendarKeys(reference: Date): string[] {
-  const month = getMonthRange(reference);
-  const firstDay = new Date(`${month.startKey}T12:00:00Z`).getUTCDay();
-  const offset = firstDay === 0 ? 6 : firstDay - 1;
-  const gridStart = addDays(month.startKey, -offset);
-  return Array.from({ length: 42 }, (_, index) => addDays(gridStart, index));
-}
-
 function DeliveryDetails({ delivery, onClose }: { delivery: DeliveryWithSubject; onClose: () => void }) {
   const deadline = formatDeadline(delivery.due_at);
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
 
   return (
-    <div className="dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-      <section className="dialog-panel details-dialog" role="dialog" aria-modal="true" aria-labelledby="delivery-details-title">
-        <div className="dialog-header">
-          <div>
-            <span className={`type-badge type-${delivery.type}`}>{deliveryTypeLabels[delivery.type]}</span>
-            <h2 id="delivery-details-title">{delivery.title}</h2>
-          </div>
-          <button className="icon-button" type="button" onClick={onClose} aria-label="Fechar"><X aria-hidden="true" /></button>
-        </div>
+    <Dialog title={delivery.title} className="details-dialog" onClose={onClose}>
+        <span className={`type-badge details-type type-${delivery.type}`}>{deliveryTypeLabels[delivery.type]}</span>
         <dl className="details-list">
           <div><dt>Disciplina</dt><dd>{delivery.subject.name}</dd></div>
           <div><dt>Prazo</dt><dd>{deadline.date}, às {deadline.time}</dd></div>
@@ -46,8 +26,7 @@ function DeliveryDetails({ delivery, onClose }: { delivery: DeliveryWithSubject;
         </dl>
         <p className="details-description">{delivery.description || "Sem descrição adicional."}</p>
         {delivery.source_url && <a className="primary-button details-link" href={delivery.source_url} target="_blank" rel="noreferrer">Abrir fonte oficial <ExternalLink aria-hidden="true" /></a>}
-      </section>
-    </div>
+    </Dialog>
   );
 }
 
@@ -56,9 +35,10 @@ export default function CalendarPage() {
   const [selectedDelivery, setSelectedDelivery] = useState<DeliveryWithSubject | null>(null);
   const monthRange = useMemo(() => getMonthRange(referenceDate), [referenceDate]);
   const calendarKeys = useMemo(() => getCalendarKeys(referenceDate), [referenceDate]);
+  const calendarRange = useMemo(() => getCalendarQueryRange(referenceDate), [referenceDate]);
   const query = useQuery({
-    queryKey: queryKeys.deliveries(monthRange.startIso, monthRange.endIso),
-    queryFn: () => fetchDeliveries(monthRange.startIso, monthRange.endIso),
+    queryKey: queryKeys.deliveries(calendarRange.startIso, calendarRange.endIso),
+    queryFn: () => fetchDeliveries(calendarRange.startIso, calendarRange.endIso),
   });
 
   const groupedDeliveries = useMemo(() => {

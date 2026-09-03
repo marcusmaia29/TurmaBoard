@@ -1,16 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../../lib/supabase";
+import { RealtimeContext, type RealtimeStatus } from "./realtime.context";
 
-export function RealtimeSync() {
+export function RealtimeProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
+  const [status, setStatus] = useState<RealtimeStatus>(supabase ? "connecting" : "disabled");
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     const client = supabase;
     if (!client) return;
+    let active = true;
 
     const channel = client
-      .channel("turmaboard-live-data")
+      .channel(`turmaboard-live-data-${retryCount}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "deliveries" }, () => {
         void queryClient.invalidateQueries({ queryKey: ["deliveries"] });
         void queryClient.invalidateQueries({ queryKey: ["history"] });
@@ -25,12 +29,36 @@ export function RealtimeSync() {
       .on("postgres_changes", { event: "*", schema: "public", table: "audit_log" }, () => {
         void queryClient.invalidateQueries({ queryKey: ["history"] });
       })
-      .subscribe();
+      .subscribe((nextStatus) => {
+        if (!active) return;
+        if (nextStatus === "SUBSCRIBED") setStatus("connected");
+        else if (nextStatus === "CHANNEL_ERROR" || nextStatus === "TIMED_OUT" || nextStatus === "CLOSED") setStatus("disconnected");
+      });
+
+    function handleOffline() {
+      setStatus("disconnected");
+    }
+    function handleOnline() {
+      setStatus("connecting");
+      setRetryCount((value) => value + 1);
+    }
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
 
     return () => {
+      active = false;
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
       void client.removeChannel(channel);
     };
-  }, [queryClient]);
+  }, [queryClient, retryCount]);
 
-  return null;
+  const value = useMemo(() => ({
+    status,
+    retry: () => {
+      setStatus("connecting");
+      setRetryCount((count) => count + 1);
+    },
+  }), [status]);
+  return <RealtimeContext.Provider value={value}>{children}</RealtimeContext.Provider>;
 }
