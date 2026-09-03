@@ -1,0 +1,36 @@
+name: Question
+description: Ask for help with TurmaBoard setup, development, or usage.
+title: "[Question]: "
+labels:
+  - question
+body:
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I read README.md, SUPPORT.md, and the relevant documentation.
+          required: true
+        - label: I searched existing issues for an answer.
+          required: true
+        - label: This question does not disclose a security vulnerability.
+          required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: Explain what you are trying to do and where you are blocked.
+    validations:
+      required: true
+  - type: textarea
+    id: attempted
+    attributes:
+      label: What have you tried?
+      description: Include relevant commands, sanitized output, and documentation consulted.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Include operating system, Node.js version, and browser as relevant.
