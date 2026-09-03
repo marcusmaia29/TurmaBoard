@@ -60,7 +60,7 @@ describe("RoomsPage", () => {
 
     expect(await screen.findByRole("heading", { name: "Salas" })).toBeInTheDocument();
     expect(screen.getByText("4º CIÊNCIA DA COMPUTAÇÃO A")).toBeInTheDocument();
-    expect(screen.getByText("Machine Learning")).toBeInTheDocument();
+    expect(screen.getAllByText("Machine Learning")).toHaveLength(2);
     expect(screen.getByLabelText("Início")).toBeInTheDocument();
     expect(screen.getByLabelText("Fim")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Agora/ })).toBeInTheDocument();
