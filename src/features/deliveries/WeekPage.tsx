@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { queryKeys } from "../../lib/queryKeys";
 import { addDays, formatWeekRange, getWeekRange } from "../../lib/date";
@@ -14,8 +15,12 @@ import { createDelivery, fetchDeliveries, softDeleteDelivery, updateDelivery, ty
 import { DeliveryCard } from "./DeliveryCard";
 import { DeliveryDialog } from "./DeliveryDialog";
 import { ConfirmDialog } from "../../shared/ConfirmDialog";
+import { fetchLessonNotes, softDeleteLessonNote } from "../lesson-notes/lesson-note.service";
+import { LessonNoteCard } from "../lesson-notes/LessonNoteCard";
+import type { LessonNoteWithSubjectAndImages } from "../../lib/database.types";
+import { mergeAcademicItems } from "../lesson-notes/lesson-note.utils";
 
-type DeliveryFilter = "all" | DeliveryType;
+type DeliveryFilter = "all" | DeliveryType | "lesson-note";
 
 export default function WeekPage() {
   const { isAdmin } = useAuth();
@@ -25,6 +30,7 @@ export default function WeekPage() {
   const [filter, setFilter] = useState<DeliveryFilter>("all");
   const [dialogState, setDialogState] = useState<{ open: boolean; delivery: DeliveryWithSubject | null }>({ open: false, delivery: null });
   const [pendingDelete, setPendingDelete] = useState<DeliveryWithSubject | null>(null);
+  const [pendingNoteDelete, setPendingNoteDelete] = useState<LessonNoteWithSubjectAndImages | null>(null);
 
   const week = useMemo(() => getWeekRange(referenceDate), [referenceDate]);
   const deliveriesQuery = useQuery({
@@ -32,6 +38,7 @@ export default function WeekPage() {
     queryFn: () => fetchDeliveries(week.startIso, week.endIso),
   });
   const subjectsQuery = useQuery({ queryKey: queryKeys.subjects, queryFn: fetchSubjects });
+  const notesQuery = useQuery({ queryKey: queryKeys.lessonNotes(week.startIso, week.endIso, undefined, "asc"), queryFn: () => fetchLessonNotes({ start: week.startIso, end: week.endIso, order: "asc" }) });
 
   const saveMutation = useMutation({
     mutationFn: async (input: DeliveryInput) => {
@@ -63,9 +70,16 @@ export default function WeekPage() {
   });
 
   const filteredDeliveries = useMemo(
-    () => (deliveriesQuery.data ?? []).filter((delivery) => filter === "all" || delivery.type === filter),
+    () => (deliveriesQuery.data ?? []).filter((delivery) => filter !== "lesson-note" && (filter === "all" || delivery.type === filter)),
     [deliveriesQuery.data, filter],
   );
+  const filteredNotes = useMemo(() => filter === "all" || filter === "lesson-note" ? notesQuery.data ?? [] : [], [filter, notesQuery.data]);
+
+  const deleteNoteMutation = useMutation({
+    mutationFn: softDeleteLessonNote,
+    onSuccess: async () => { setPendingNoteDelete(null); await queryClient.invalidateQueries({ queryKey: ["lesson-notes"] }); await queryClient.invalidateQueries({ queryKey: ["history"] }); showToast("Anotação removida do quadro."); },
+    onError: () => showToast("Não foi possível remover a anotação.", "error"),
+  });
 
   function shiftWeek(amount: number) {
     setReferenceDate(new Date(`${addDays(week.startKey, amount * 7)}T15:00:00-03:00`));
@@ -80,12 +94,10 @@ export default function WeekPage() {
   return (
     <div>
       <PageHeader
-        title="Entregas da semana"
-        description="Prazos e atividades da turma reunidos por disciplina."
+        title="Semana da turma"
+        description="Prazos, atividades e anotações de aula reunidos por disciplina."
         action={isAdmin ? (
-          <button className="primary-button" type="button" onClick={() => setDialogState({ open: true, delivery: null })} disabled={!subjects.length}>
-            <Plus aria-hidden="true" /> Adicionar entrega
-          </button>
+          <span className="page-actions"><Link className="secondary-button" to={subjects[0] ? `/subjects/${subjects[0].id}/notes/new` : "/subjects"}><Plus aria-hidden="true" /> Nova anotação</Link><button className="primary-button" type="button" onClick={() => setDialogState({ open: true, delivery: null })} disabled={!subjects.length}><Plus aria-hidden="true" /> Adicionar entrega</button></span>
         ) : undefined}
       />
 
@@ -95,6 +107,7 @@ export default function WeekPage() {
           {deliveryTypes.map((type) => (
             <button className={filter === type ? "active" : ""} type="button" onClick={() => setFilter(type)} key={type}>{deliveryTypeLabels[type]}</button>
           ))}
+          <button className={filter === "lesson-note" ? "active" : ""} type="button" onClick={() => setFilter("lesson-note")}>Anotações</button>
         </div>
         <div className="period-switcher">
           <button className="icon-button" type="button" onClick={() => shiftWeek(-1)} aria-label="Semana anterior"><ChevronLeft aria-hidden="true" /></button>
@@ -104,29 +117,29 @@ export default function WeekPage() {
           </div>
           <button className="icon-button" type="button" onClick={() => shiftWeek(1)} aria-label="Próxima semana"><ChevronRight aria-hidden="true" /></button>
         </div>
-        <span className="result-count">{filteredDeliveries.length} {filteredDeliveries.length === 1 ? "item" : "itens"}</span>
+        <span className="result-count">{filteredDeliveries.length + filteredNotes.length} {filteredDeliveries.length + filteredNotes.length === 1 ? "item" : "itens"}</span>
       </section>
 
-      {(deliveriesQuery.isLoading || subjectsQuery.isLoading) && <LoadingSkeleton />}
-      {(deliveriesQuery.isError || subjectsQuery.isError) && (
-        <ErrorState onRetry={() => { void deliveriesQuery.refetch(); void subjectsQuery.refetch(); }} />
+      {(deliveriesQuery.isLoading || subjectsQuery.isLoading || notesQuery.isLoading) && <LoadingSkeleton />}
+      {(deliveriesQuery.isError || subjectsQuery.isError || notesQuery.isError) && (
+        <ErrorState onRetry={() => { void deliveriesQuery.refetch(); void subjectsQuery.refetch(); void notesQuery.refetch(); }} />
       )}
-      {!deliveriesQuery.isLoading && !subjectsQuery.isLoading && !deliveriesQuery.isError && !subjectsQuery.isError && (
+      {!deliveriesQuery.isLoading && !subjectsQuery.isLoading && !notesQuery.isLoading && !deliveriesQuery.isError && !subjectsQuery.isError && !notesQuery.isError && (
         <div className="subject-board">
           {subjects.map((subject) => {
             const subjectDeliveries = filteredDeliveries.filter((delivery) => delivery.subject_id === subject.id);
+            const subjectNotes = filteredNotes.filter((note) => note.subject_id === subject.id);
+            const subjectItems = mergeAcademicItems(subjectDeliveries, subjectNotes);
             return (
               <section className="subject-column" style={{ "--subject-color": subject.color } as React.CSSProperties} key={subject.id}>
                 <header className="subject-column-header">
                   <span className="subject-code">{subject.code}</span>
-                  <div><h2>{subject.name}</h2><p>{subjectDeliveries.length} {subjectDeliveries.length === 1 ? "item" : "itens"}</p></div>
-                  <span className="subject-count">{subjectDeliveries.length}</span>
+                  <div><h2>{subject.name}</h2><p>{subjectItems.length} {subjectItems.length === 1 ? "item" : "itens"}</p></div>
+                  <span className="subject-count">{subjectItems.length}</span>
                 </header>
                 <div className="delivery-list">
-                  {subjectDeliveries.map((delivery) => (
-                    <DeliveryCard delivery={delivery} isAdmin={isAdmin} onEdit={(item) => setDialogState({ open: true, delivery: item })} onDelete={requestDelete} key={delivery.id} />
-                  ))}
-                  {!subjectDeliveries.length && <EmptyState title="Semana livre" description={filter === "all" ? "Nenhuma entrega para esta disciplina." : "Nenhum item deste tipo."} />}
+                  {subjectItems.map((item) => item.kind === "delivery" ? <DeliveryCard delivery={item.data} isAdmin={isAdmin} onEdit={(delivery) => setDialogState({ open: true, delivery })} onDelete={requestDelete} key={`delivery-${item.data.id}`} /> : <LessonNoteCard note={item.data} isAdmin={isAdmin} onDelete={setPendingNoteDelete} key={`note-${item.data.id}`} />)}
+                  {!subjectItems.length && <EmptyState title="Semana livre" description={filter === "all" ? "Nenhuma entrega ou anotação para esta disciplina." : "Nenhum item deste tipo."} />}
                 </div>
               </section>
             );
@@ -153,6 +166,7 @@ export default function WeekPage() {
           onConfirm={() => deleteMutation.mutate(pendingDelete)}
         />
       )}
+      {pendingNoteDelete && <ConfirmDialog title={`Remover “${pendingNoteDelete.title}”?`} description="A anotação sairá do quadro, mas a ação continuará registrada no histórico." confirmLabel="Remover anotação" isPending={deleteNoteMutation.isPending} onCancel={() => setPendingNoteDelete(null)} onConfirm={() => deleteNoteMutation.mutate(pendingNoteDelete)} />}
     </div>
   );
 }

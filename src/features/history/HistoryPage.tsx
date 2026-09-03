@@ -32,7 +32,7 @@ export default function HistoryPage() {
               return (
                 <li key={entry.id}>
                   <span className={`history-icon history-${entry.action}`}><Icon aria-hidden="true" /></span>
-                  <div><p><strong>{entry.actor_name}</strong> {entry.summary}</p><span>{action.label} · {entry.entity_type === "deliveries" ? "Entrega" : entry.entity_type === "subjects" ? "Disciplina" : "Link"}</span></div>
+                  <div><p><strong>{entry.actor_name}</strong> {entry.summary}</p><span>{action.label} · {entry.entity_type === "deliveries" ? "Entrega" : entry.entity_type === "subjects" ? "Disciplina" : entry.entity_type === "lesson_notes" ? "Anotação" : entry.entity_type === "lesson_note_images" ? "Imagem da anotação" : "Link"}</span></div>
                   <time dateTime={entry.created_at}>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium", timeStyle: "short", timeZone: APP_TIME_ZONE }).format(new Date(entry.created_at))}</time>
                 </li>
               );

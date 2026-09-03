@@ -1,15 +1,18 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { BookOpenText, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../../shared/PageHeader";
 import { ErrorState, LoadingSkeleton } from "../../shared/feedback";
 import { formatDeadline, formatMonthTitle, getMonthRange, shiftMonth, toDateKey } from "../../lib/date";
 import { queryKeys } from "../../lib/queryKeys";
-import type { DeliveryWithSubject } from "../../lib/database.types";
+import type { AcademicCalendarItem, DeliveryWithSubject } from "../../lib/database.types";
 import { fetchDeliveries } from "../deliveries/delivery.service";
 import { deliveryTypeLabels } from "../deliveries/delivery.constants";
 import { Dialog } from "../../shared/Dialog";
 import { getCalendarKeys, getCalendarQueryRange } from "./calendar.utils";
+import { fetchLessonNotes } from "../lesson-notes/lesson-note.service";
+import { itemDate, mergeAcademicItems } from "../lesson-notes/lesson-note.utils";
 
 const weekDayLabels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 
@@ -33,6 +36,7 @@ function DeliveryDetails({ delivery, onClose }: { delivery: DeliveryWithSubject;
 export default function CalendarPage() {
   const [referenceDate, setReferenceDate] = useState(new Date());
   const [selectedDelivery, setSelectedDelivery] = useState<DeliveryWithSubject | null>(null);
+  const navigate = useNavigate();
   const monthRange = useMemo(() => getMonthRange(referenceDate), [referenceDate]);
   const calendarKeys = useMemo(() => getCalendarKeys(referenceDate), [referenceDate]);
   const calendarRange = useMemo(() => getCalendarQueryRange(referenceDate), [referenceDate]);
@@ -40,19 +44,23 @@ export default function CalendarPage() {
     queryKey: queryKeys.deliveries(calendarRange.startIso, calendarRange.endIso),
     queryFn: () => fetchDeliveries(calendarRange.startIso, calendarRange.endIso),
   });
+  const notesQuery = useQuery({
+    queryKey: queryKeys.lessonNotes(calendarRange.startIso, calendarRange.endIso, undefined, "asc"),
+    queryFn: () => fetchLessonNotes({ start: calendarRange.startIso, end: calendarRange.endIso, order: "asc" }),
+  });
 
-  const groupedDeliveries = useMemo(() => {
-    const groups = new Map<string, DeliveryWithSubject[]>();
-    for (const delivery of query.data ?? []) {
-      const key = toDateKey(new Date(delivery.due_at));
-      groups.set(key, [...(groups.get(key) ?? []), delivery]);
+  const groupedItems = useMemo(() => {
+    const groups = new Map<string, AcademicCalendarItem[]>();
+    for (const item of mergeAcademicItems(query.data ?? [], notesQuery.data ?? [])) {
+      const key = toDateKey(new Date(itemDate(item)));
+      groups.set(key, [...(groups.get(key) ?? []), item]);
     }
     return groups;
-  }, [query.data]);
+  }, [notesQuery.data, query.data]);
 
   return (
     <div>
-      <PageHeader title="Calendário da turma" description="Veja como os prazos se distribuem ao longo do mês." />
+      <PageHeader title="Calendário da turma" description="Veja prazos e anotações de aula distribuídos ao longo do mês." />
       <section className="calendar-toolbar">
         <button className="secondary-button" type="button" onClick={() => setReferenceDate(new Date())}>Hoje</button>
         <div className="period-switcher">
@@ -60,35 +68,35 @@ export default function CalendarPage() {
           <strong>{formatMonthTitle(referenceDate)}</strong>
           <button className="icon-button" type="button" onClick={() => setReferenceDate((date) => shiftMonth(date, 1))} aria-label="Próximo mês"><ChevronRight aria-hidden="true" /></button>
         </div>
-        <span className="result-count">{query.data?.length ?? 0} prazos</span>
+        <span className="result-count">{(query.data?.length ?? 0) + (notesQuery.data?.length ?? 0)} itens</span>
       </section>
 
-      {query.isLoading && <LoadingSkeleton columns={3} />}
-      {query.isError && <ErrorState onRetry={() => void query.refetch()} />}
-      {!query.isLoading && !query.isError && (
+      {(query.isLoading || notesQuery.isLoading) && <LoadingSkeleton columns={3} />}
+      {(query.isError || notesQuery.isError) && <ErrorState onRetry={() => { void query.refetch(); void notesQuery.refetch(); }} />}
+      {!query.isLoading && !notesQuery.isLoading && !query.isError && !notesQuery.isError && (
         <div className="calendar-shell">
           <div className="calendar-weekdays" aria-hidden="true">{weekDayLabels.map((label) => <span key={label}>{label}</span>)}</div>
           <div className="calendar-grid">
             {calendarKeys.map((dateKey) => {
               const isCurrentMonth = dateKey >= monthRange.startKey && dateKey < monthRange.endKey;
               const isToday = dateKey === toDateKey(new Date());
-              const deliveries = groupedDeliveries.get(dateKey) ?? [];
+              const items = groupedItems.get(dateKey) ?? [];
               return (
                 <div className={`calendar-day${isCurrentMonth ? "" : " outside"}${isToday ? " today" : ""}`} key={dateKey}>
                   <time dateTime={dateKey}>{Number(dateKey.slice(-2))}</time>
                   <div className="calendar-events">
-                    {deliveries.map((delivery) => (
+                    {items.map((item) => item.kind === "delivery" ? (
                       <button
                         type="button"
                         className="calendar-event"
-                        style={{ "--subject-color": delivery.subject.color } as React.CSSProperties}
-                        onClick={() => setSelectedDelivery(delivery)}
-                        title={`${delivery.subject.name}: ${delivery.title}`}
-                        key={delivery.id}
+                        style={{ "--subject-color": item.data.subject.color } as React.CSSProperties}
+                        onClick={() => setSelectedDelivery(item.data)}
+                        title={`${item.data.subject.name}: ${item.data.title}`}
+                        key={`delivery-${item.data.id}`}
                       >
-                        <span>{formatDeadline(delivery.due_at).time}</span> {delivery.title}
+                        <span>{formatDeadline(item.data.due_at).time}</span> {item.data.title}
                       </button>
-                    ))}
+                    ) : <button type="button" className="calendar-event calendar-note" style={{ "--subject-color": item.data.subject.color } as React.CSSProperties} onClick={() => navigate(`/subjects/${item.data.subject_id}/notes/${item.data.id}`)} title={`Anotação de ${item.data.subject.name}: ${item.data.title}`} key={`note-${item.data.id}`}><BookOpenText aria-hidden="true" /><span>{formatDeadline(item.data.occurred_at).time}</span> {item.data.title}</button>)}
                   </div>
                 </div>
               );

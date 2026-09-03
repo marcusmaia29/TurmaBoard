@@ -1,4 +1,5 @@
 import { useState, type CSSProperties, type FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Archive, ArchiveRestore, ChevronDown, ChevronUp, ExternalLink, Link2, Plus, Save, Trash2 } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
@@ -226,6 +227,11 @@ export default function SubjectsPage() {
                   </div>
                 )}
               </div>
+
+              <nav className="subject-view-tabs" aria-label="Conteúdo da disciplina">
+                <span className="active">Visão geral</span>
+                <Link to={`/subjects/${selectedSubject.id}/notes`}>Anotações de aula</Link>
+              </nav>
 
               {isAdmin ? (
                 <div className="subject-form-grid">

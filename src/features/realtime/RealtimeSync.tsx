@@ -26,6 +26,13 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       .on("postgres_changes", { event: "*", schema: "public", table: "subject_links" }, () => {
         void queryClient.invalidateQueries({ queryKey: ["subjects"] });
       })
+      .on("postgres_changes", { event: "*", schema: "public", table: "lesson_notes" }, () => {
+        void queryClient.invalidateQueries({ queryKey: ["lesson-notes"] });
+        void queryClient.invalidateQueries({ queryKey: ["history"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "lesson_note_images" }, () => {
+        void queryClient.invalidateQueries({ queryKey: ["lesson-notes"] });
+      })
       .on("postgres_changes", { event: "*", schema: "public", table: "audit_log" }, () => {
         void queryClient.invalidateQueries({ queryKey: ["history"] });
       })
