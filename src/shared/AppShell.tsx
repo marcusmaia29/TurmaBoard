@@ -53,10 +53,11 @@ export function AppShell() {
             href="https://github.com/marcusmaia29/TurmaBoard"
             target="_blank"
             rel="noreferrer"
-            aria-label="Abrir o TurmaBoard no GitHub"
-            title="GitHub"
+            aria-label="Dar uma estrela no TurmaBoard no GitHub"
+            title="Star"
           >
             <Github aria-hidden="true" />
+            <span>Star</span>
           </a>
         </nav>
 

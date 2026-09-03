@@ -34,10 +34,11 @@ describe("AppShell", () => {
       </MemoryRouter>,
     );
 
-    const githubLink = screen.getByRole("link", { name: "Abrir o TurmaBoard no GitHub" });
+    const githubLink = screen.getByRole("link", { name: "Dar uma estrela no TurmaBoard no GitHub" });
 
     expect(githubLink).toHaveAttribute("href", "https://github.com/marcusmaia29/TurmaBoard");
     expect(githubLink).toHaveAttribute("target", "_blank");
+    expect(githubLink).toHaveTextContent("Star");
     expect(screen.queryByText("Sobre")).not.toBeInTheDocument();
   });
 });
