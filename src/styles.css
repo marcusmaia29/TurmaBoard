@@ -548,11 +548,15 @@ h1, h2, h3, p { text-wrap: pretty; }
   .page-header h1 { font-size: 1.42rem; }
   .page-header p { font-size: .79rem; }
   /* Period, reset and filters share one line; nothing here may wrap. */
-  .toolbar-row { min-height: 0; padding: .55rem .55rem; gap: .35rem; flex-wrap: nowrap; }
-  .period-switcher { gap: .25rem; }
+  .toolbar-row { min-height: 0; padding: .55rem .5rem; gap: .3rem; flex-wrap: nowrap; }
+  .period-switcher { gap: .2rem; }
   .period-switcher > strong { min-width: 0; padding: 0 .15rem; font-size: .82rem; white-space: nowrap; }
-  .period-reset { margin-left: 0; padding: 0 .6rem; font-size: .78rem; }
-  .filter-menu-trigger { margin-left: auto; padding: 0 .5rem; }
+  .period-reset { margin-left: 0; padding: 0 .5rem; font-size: .78rem; }
+  /* The slack goes to the period switcher, whose arrows bracket the date, so the
+     row fills edge to edge without squeezing the filter label into an ellipsis. */
+  .period-switcher { flex: 1; }
+  .period-switcher > strong { flex: 1; }
+  .filter-menu-trigger { flex: 0 0 auto; padding: 0 .45rem; }
   .filter-menu-trigger .menu-chevron { display: none; }
   .subject-board { grid-auto-columns: min(84vw, 315px); }
   .subjects-layout { grid-template-columns: 1fr; }
@@ -593,6 +597,11 @@ h1, h2, h3, p { text-wrap: pretty; }
   .note-editor-split { grid-template-columns: 1fr; }
   .note-editor-split.view-edit .note-preview-pane, .note-editor-split.view-preview .note-source-pane { display: none; }
   .note-source-pane { border-right: 0; }
+}
+
+@media (max-width: 359px) {
+  .toolbar-row { flex-wrap: wrap; }
+  .period-switcher { flex: 1 0 100%; }
 }
 
 @media (max-width: 520px) {
