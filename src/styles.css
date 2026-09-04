@@ -110,13 +110,13 @@ h1, h2, h3, p { text-wrap: pretty; }
 
 .panel { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-lg); box-shadow: var(--shadow-low); }
 
-.toolbar { margin-bottom: 1rem; overflow: hidden; background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-lg); box-shadow: var(--shadow-low); }
+.toolbar { margin-bottom: 1rem; background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-lg); box-shadow: var(--shadow-low); }
 .toolbar-row { min-height: 4.3rem; padding: .75rem .8rem; display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; }
-.toolbar-row-filters { min-height: 4.1rem; padding: .7rem .8rem; background: oklch(0.99 0.003 260); border-top: 1px solid var(--color-line); }
+.toolbar-row-filters { min-height: 4.1rem; padding: .7rem .8rem; background: oklch(0.99 0.003 260); border-top: 1px solid var(--color-line); border-radius: 0 0 calc(var(--radius-lg) - 1px) calc(var(--radius-lg) - 1px); }
 .toolbar-row > .result-count { margin-left: auto; }
 
 .period-switcher { display: flex; align-items: center; gap: .5rem; }
-.period-switcher > strong { min-width: 13.5rem; padding: 0 .35rem; font-size: .92rem; letter-spacing: -.015em; }
+.period-switcher > strong { min-width: 9.5rem; padding: 0 .35rem; font-size: .92rem; letter-spacing: -.015em; text-align: center; }
 .period-reset { margin-left: .3rem; }
 .result-count { padding: .4rem .7rem; display: inline-flex; align-items: center; color: var(--color-muted); background: var(--color-soft); border: 1px solid var(--color-line); border-radius: var(--radius-pill); font-size: .76rem; font-weight: 700; }
 
@@ -125,6 +125,11 @@ h1, h2, h3, p { text-wrap: pretty; }
 .segmented button:hover { background: var(--color-soft); }
 .segmented button.active { color: var(--color-brand-700); background: var(--color-brand-50); border-color: var(--color-brand-100); }
 .segmented abbr { display: none; text-decoration: none; }
+
+.filter-menu-trigger { padding: 0 .7rem; gap: .4rem; font-size: .78rem; }
+.filter-menu-trigger .menu-chevron { width: .95rem; height: .95rem; color: oklch(0.58 0.035 260); transition: rotate 180ms ease; }
+.filter-menu-trigger[aria-expanded="true"] .menu-chevron { rotate: 180deg; }
+.menu-panel button.active { color: var(--color-brand-700); background: var(--color-brand-50); }
 
 .filter-chips { min-width: 0; display: flex; align-items: center; gap: .8rem; flex: 1; }
 .filter-chips-label { color: oklch(0.4 0.035 260); font-size: .68rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
@@ -537,14 +542,18 @@ h1, h2, h3, p { text-wrap: pretty; }
   .nav-link span { font-size: .6rem; font-weight: 750; letter-spacing: -.01em; white-space: nowrap; }
   .nav-menu-trigger .menu-chevron { display: none; }
   .menu-panel-wide { right: 0; left: auto; }
-  .app-main { padding: 1.15rem 1rem 2.5rem; }
+  .app-main { padding: 1.15rem .75rem 2.5rem; }
+  .result-count-supplementary { display: none; }
   .page-header { align-items: center; flex-wrap: wrap; }
   .page-header h1 { font-size: 1.42rem; }
   .page-header p { font-size: .79rem; }
-  .toolbar-row { min-height: 0; }
-  .period-switcher { flex-wrap: wrap; }
-  .period-switcher > strong { min-width: 0; flex: 1; text-align: center; }
-  .filter-chips { align-items: flex-start; flex-direction: column; gap: .45rem; }
+  /* Period, reset and filters share one line; nothing here may wrap. */
+  .toolbar-row { min-height: 0; padding: .55rem .55rem; gap: .35rem; flex-wrap: nowrap; }
+  .period-switcher { gap: .25rem; }
+  .period-switcher > strong { min-width: 0; padding: 0 .15rem; font-size: .82rem; white-space: nowrap; }
+  .period-reset { margin-left: 0; padding: 0 .6rem; font-size: .78rem; }
+  .filter-menu-trigger { margin-left: auto; padding: 0 .5rem; }
+  .filter-menu-trigger .menu-chevron { display: none; }
   .subject-board { grid-auto-columns: min(84vw, 315px); }
   .subjects-layout { grid-template-columns: 1fr; }
   .subject-selector { flex-direction: row; overflow-x: auto; }

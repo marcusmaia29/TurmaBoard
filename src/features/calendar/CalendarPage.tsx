@@ -72,7 +72,7 @@ export default function CalendarPage() {
           onNext={() => setReferenceDate((date) => shiftMonth(date, 1))}
           reset={{ label: "Hoje", onReset: () => setReferenceDate(new Date()) }}
         />
-        <ResultCount>{(query.data?.length ?? 0) + (notesQuery.data?.length ?? 0)} itens</ResultCount>
+        <ResultCount isSupplementary>{(query.data?.length ?? 0) + (notesQuery.data?.length ?? 0)} itens</ResultCount>
       </Toolbar>
 
       {(query.isLoading || notesQuery.isLoading) && <LoadingSkeleton columns={3} />}

@@ -16,6 +16,26 @@ export function Toolbar({ label, children, filters }: { label: string; children?
   );
 }
 
-export function ResultCount({ children, isLive = false }: { children: ReactNode; isLive?: boolean }) {
-  return <span className="result-count" aria-live={isLive ? "polite" : undefined}>{children}</span>;
+/**
+ * `isSupplementary` marks a count that merely restates what the list already
+ * shows, so narrow screens can drop it. A count that is the page's actual
+ * answer — the rooms free in an interval — must not carry it.
+ */
+export function ResultCount({
+  children,
+  isLive = false,
+  isSupplementary = false,
+}: {
+  children: ReactNode;
+  isLive?: boolean;
+  isSupplementary?: boolean;
+}) {
+  return (
+    <span
+      className={`result-count${isSupplementary ? " result-count-supplementary" : ""}`}
+      aria-live={isLive ? "polite" : undefined}
+    >
+      {children}
+    </span>
+  );
 }

@@ -11,8 +11,10 @@ import { useToast } from "../../shared/ToastContext";
 import { EmptyState, ErrorState, LoadingSkeleton } from "../../shared/feedback";
 import { PageHeader } from "../../shared/PageHeader";
 import { FilterChips } from "../../shared/FilterChips";
+import { FilterMenu } from "../../shared/FilterMenu";
 import { PeriodSwitcher } from "../../shared/PeriodSwitcher";
 import { ResultCount, Toolbar } from "../../shared/Toolbar";
+import { COMPACT_QUERY, useMediaQuery } from "../../shared/useMediaQuery";
 import { deliveryTypeLabels, deliveryTypes } from "./delivery.constants";
 import { createDelivery, fetchDeliveries, softDeleteDelivery, updateDelivery, type DeliveryInput } from "./delivery.service";
 import { DeliveryCard } from "./DeliveryCard";
@@ -100,6 +102,7 @@ export default function WeekPage() {
 
   const subjects = subjectsQuery.data ?? [];
   const itemCount = filteredDeliveries.length + filteredNotes.length;
+  const isCompact = useMediaQuery(COMPACT_QUERY);
 
   return (
     <div>
@@ -113,7 +116,7 @@ export default function WeekPage() {
 
       <Toolbar
         label="Controles do quadro"
-        filters={<FilterChips label="Tipo" options={filterOptions} value={filter} onChange={setFilter} />}
+        filters={isCompact ? undefined : <FilterChips label="Tipo" options={filterOptions} value={filter} onChange={setFilter} />}
       >
         <PeriodSwitcher
           label={formatWeekRange(week.startKey, week.endKey)}
@@ -123,7 +126,8 @@ export default function WeekPage() {
           onNext={() => shiftWeek(1)}
           reset={{ label: "Hoje", onReset: () => setReferenceDate(new Date()) }}
         />
-        <ResultCount>{itemCount} {itemCount === 1 ? "item" : "itens"}</ResultCount>
+        {isCompact && <FilterMenu label="Tipo" options={filterOptions} value={filter} onChange={setFilter} />}
+        <ResultCount isSupplementary>{itemCount} {itemCount === 1 ? "item" : "itens"}</ResultCount>
       </Toolbar>
 
       {(deliveriesQuery.isLoading || subjectsQuery.isLoading || notesQuery.isLoading) && <LoadingSkeleton />}

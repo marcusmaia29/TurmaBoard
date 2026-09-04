@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { makeDelivery, makeSubject, makeSubjectWithLinks } from "../../test/factories";
+import { setViewportMatches } from "../../test/setup";
 import WeekPage from "./WeekPage";
 import { fetchDeliveries } from "./delivery.service";
 import { fetchSubjects } from "../subjects/subject.service";
@@ -67,7 +68,7 @@ describe("WeekPage", () => {
   it("shows the current week, the item count and every type filter", async () => {
     renderPage();
 
-    expect(await screen.findByText("31 de agosto a 6 de setembro")).toBeInTheDocument();
+    expect(await screen.findByText("31/08 a 06/09")).toBeInTheDocument();
     expect(await toolbar().findByText("3 itens")).toBeInTheDocument();
 
     for (const label of ["Todos", "Prova", "Quiz", "APS", "Projeto", "Atividade", "Aviso", "Anotações"]) {
@@ -87,19 +88,45 @@ describe("WeekPage", () => {
     expect(toolbar().getByText("1 item")).toBeInTheDocument();
   });
 
+  it("collapses the type filters into a menu on narrow screens", async () => {
+    setViewportMatches(true);
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    renderPage();
+    await screen.findByText("31/08 a 06/09");
+
+    // The chips are gone; one trigger stands in for them.
+    expect(toolbar().queryByRole("button", { name: "Prova" })).not.toBeInTheDocument();
+    const trigger = toolbar().getByRole("button", { name: "Tipo: Todos" });
+
+    await user.click(trigger);
+    await user.click(screen.getByRole("menuitemradio", { name: "Prova" }));
+
+    expect(screen.getByRole("heading", { name: "Avaliação intermediária" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Quiz 4 — validação cruzada" })).not.toBeInTheDocument();
+    expect(toolbar().getByRole("button", { name: "Tipo: Prova" })).toBeInTheDocument();
+    expect(screen.queryByRole("menuitemradio")).not.toBeInTheDocument();
+  });
+
+  it("drops the supplementary item count on narrow screens", async () => {
+    setViewportMatches(true);
+    renderPage();
+    await screen.findByText("31/08 a 06/09");
+    expect(toolbar().getByText("3 itens")).toHaveClass("result-count-supplementary");
+  });
+
   it("moves between weeks and back to the current one", async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     renderPage();
-    await screen.findByText("31 de agosto a 6 de setembro");
+    await screen.findByText("31/08 a 06/09");
 
     await user.click(screen.getByRole("button", { name: "Semana anterior" }));
-    expect(await screen.findByText("24 a 30 de agosto")).toBeInTheDocument();
+    expect(await screen.findByText("24/08 a 30/08")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Próxima semana" }));
     await user.click(screen.getByRole("button", { name: "Próxima semana" }));
-    expect(await screen.findByText("7 a 13 de setembro")).toBeInTheDocument();
+    expect(await screen.findByText("07/09 a 13/09")).toBeInTheDocument();
 
     await user.click(toolbar().getByRole("button", { name: "Hoje" }));
-    expect(await screen.findByText("31 de agosto a 6 de setembro")).toBeInTheDocument();
+    expect(await screen.findByText("31/08 a 06/09")).toBeInTheDocument();
   });
 });

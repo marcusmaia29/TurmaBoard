@@ -5,7 +5,7 @@ describe("date utilities", () => {
     const range = getWeekRange(new Date("2026-08-25T12:00:00-03:00"));
     expect(range.startKey).toBe("2026-08-24");
     expect(range.endKey).toBe("2026-08-30");
-    expect(formatWeekRange(range.startKey, range.endKey)).toBe("24 a 30 de agosto");
+    expect(formatWeekRange(range.startKey, range.endKey)).toBe("24/08 a 30/08");
   });
 
   it("handles month and year boundaries", () => {

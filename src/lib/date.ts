@@ -51,14 +51,13 @@ export function getMonthRange(reference: Date): { startKey: string; endKey: stri
   };
 }
 
+/** Zero-padded day/month, short enough to sit on one line beside the controls. */
 export function formatWeekRange(startKey: string, endKey: string): string {
-  const start = utcDateFromKey(startKey);
-  const end = utcDateFromKey(endKey);
-  const month = new Intl.DateTimeFormat("pt-BR", { month: "long", timeZone: "UTC" });
-  if (start.getUTCMonth() === end.getUTCMonth()) {
-    return `${start.getUTCDate()} a ${end.getUTCDate()} de ${month.format(end)}`;
-  }
-  return `${start.getUTCDate()} de ${month.format(start)} a ${end.getUTCDate()} de ${month.format(end)}`;
+  const dayMonth = (dateKey: string) => {
+    const [, month, day] = dateKey.split("-");
+    return `${day}/${month}`;
+  };
+  return `${dayMonth(startKey)} a ${dayMonth(endKey)}`;
 }
 
 export function formatMonthTitle(reference: Date): string {

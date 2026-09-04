@@ -192,6 +192,8 @@ Abaixo de 940px a navegação desce para a própria linha do cabeçalho. Abaixo 
 
 Um único bloco de controle entre o título e o conteúdo, com até duas faixas: a primeira para navegação de período, ações de contexto e a contagem de resultados; a segunda para filtros ou legenda. A navegação de período é sempre `‹ rótulo ›` com um botão **Hoje** ao lado — nunca um link solto sob o rótulo.
 
+No celular a barra vira **uma única faixa**: o período usa data numérica curta (`31/08 a 06/09`), os filtros viram gatilho de menu e a contagem de resultados desaparece quando é apenas um resumo do que a lista já mostra. Uma contagem que seja a própria resposta da página — as salas livres num intervalo — permanece em qualquer largura.
+
 ### Filtros e alternadores
 
 Dois controles distintos, que não devem ser fundidos:
@@ -200,6 +202,8 @@ Dois controles distintos, que não devem ser fundidos:
 - **Controle segmentado** — opções de largura igual que **alternam** entre visões do mesmo dado.
 
 Ambos usam `aria-pressed` em botões reais dentro de um grupo rotulado.
+
+No celular, onde os chips não cabem ao lado da navegação de período, eles colapsam num único gatilho que abre as mesmas opções como menu de escolha única (`menuitemradio`). O gatilho sempre mostra o filtro ativo, para que o recorte em vigor continue legível sem abrir nada.
 
 ### Menus
 
@@ -228,7 +232,7 @@ No desktop, use uma matriz completa de cinco dias. No celular, mostre um dia por
 - **Don't** crie painéis corporativos densos ou fluxos de kanban pessoal.
 - **Don't** use animação decorativa, gradientes de fundo ou brilho em elementos coloridos.
 - **Don't** permita cores de disciplina competindo com ações primárias.
-- **Don't** esconda ações primárias em menus ou dependa de hover para revelar informação. Os quatro destinos principais e os filtros da semana ficam sempre à vista; só o secundário entra em **Mais ações**.
+- **Don't** esconda ações primárias em menus ou dependa de hover para revelar informação. Os quatro destinos principais entram sempre à vista; só o secundário vai para **Mais ações**. Os filtros só colapsam em menu na largura em que os chips deixam de caber, e mesmo aí o gatilho declara o filtro ativo.
 - **Don't** use `font-size: 0` para transformar botão em ícone: o rótulo continua na árvore de acessibilidade sem estar visível. Use `.sr-only`.
 - **Don't** coloque textos longos em cards de visão geral.
 - **Don't** confie apenas na cor para matéria, tipo, urgência ou estado.
