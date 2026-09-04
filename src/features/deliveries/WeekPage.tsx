@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { queryKeys } from "../../lib/queryKeys";
@@ -10,6 +10,9 @@ import { fetchSubjects } from "../subjects/subject.service";
 import { useToast } from "../../shared/ToastContext";
 import { EmptyState, ErrorState, LoadingSkeleton } from "../../shared/feedback";
 import { PageHeader } from "../../shared/PageHeader";
+import { FilterChips } from "../../shared/FilterChips";
+import { PeriodSwitcher } from "../../shared/PeriodSwitcher";
+import { ResultCount, Toolbar } from "../../shared/Toolbar";
 import { deliveryTypeLabels, deliveryTypes } from "./delivery.constants";
 import { createDelivery, fetchDeliveries, softDeleteDelivery, updateDelivery, type DeliveryInput } from "./delivery.service";
 import { DeliveryCard } from "./DeliveryCard";
@@ -21,6 +24,12 @@ import type { LessonNoteWithSubjectAndImages } from "../../lib/database.types";
 import { mergeAcademicItems } from "../lesson-notes/lesson-note.utils";
 
 type DeliveryFilter = "all" | DeliveryType | "lesson-note";
+
+const filterOptions: ReadonlyArray<{ value: DeliveryFilter; label: string }> = [
+  { value: "all", label: "Todos" },
+  ...deliveryTypes.map((type) => ({ value: type as DeliveryFilter, label: deliveryTypeLabels[type] })),
+  { value: "lesson-note", label: "Anotações" },
+];
 
 export default function WeekPage() {
   const { isAdmin } = useAuth();
@@ -90,6 +99,7 @@ export default function WeekPage() {
   }
 
   const subjects = subjectsQuery.data ?? [];
+  const itemCount = filteredDeliveries.length + filteredNotes.length;
 
   return (
     <div>
@@ -101,24 +111,20 @@ export default function WeekPage() {
         ) : undefined}
       />
 
-      <section className="board-toolbar" aria-label="Controles do quadro">
-        <div className="filter-list" aria-label="Filtrar por tipo">
-          <button className={filter === "all" ? "active" : ""} type="button" onClick={() => setFilter("all")}>Todos</button>
-          {deliveryTypes.map((type) => (
-            <button className={filter === type ? "active" : ""} type="button" onClick={() => setFilter(type)} key={type}>{deliveryTypeLabels[type]}</button>
-          ))}
-          <button className={filter === "lesson-note" ? "active" : ""} type="button" onClick={() => setFilter("lesson-note")}>Anotações</button>
-        </div>
-        <div className="period-switcher">
-          <button className="icon-button" type="button" onClick={() => shiftWeek(-1)} aria-label="Semana anterior"><ChevronLeft aria-hidden="true" /></button>
-          <div>
-            <strong>{formatWeekRange(week.startKey, week.endKey)}</strong>
-            <button type="button" onClick={() => setReferenceDate(new Date())}>Voltar para esta semana</button>
-          </div>
-          <button className="icon-button" type="button" onClick={() => shiftWeek(1)} aria-label="Próxima semana"><ChevronRight aria-hidden="true" /></button>
-        </div>
-        <span className="result-count">{filteredDeliveries.length + filteredNotes.length} {filteredDeliveries.length + filteredNotes.length === 1 ? "item" : "itens"}</span>
-      </section>
+      <Toolbar
+        label="Controles do quadro"
+        filters={<FilterChips label="Tipo" options={filterOptions} value={filter} onChange={setFilter} />}
+      >
+        <PeriodSwitcher
+          label={formatWeekRange(week.startKey, week.endKey)}
+          previousLabel="Semana anterior"
+          nextLabel="Próxima semana"
+          onPrevious={() => shiftWeek(-1)}
+          onNext={() => shiftWeek(1)}
+          reset={{ label: "Hoje", onReset: () => setReferenceDate(new Date()) }}
+        />
+        <ResultCount>{itemCount} {itemCount === 1 ? "item" : "itens"}</ResultCount>
+      </Toolbar>
 
       {(deliveriesQuery.isLoading || subjectsQuery.isLoading || notesQuery.isLoading) && <LoadingSkeleton />}
       {(deliveriesQuery.isError || subjectsQuery.isError || notesQuery.isError) && (

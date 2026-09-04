@@ -1,7 +1,11 @@
 import { useState, type CSSProperties } from "react";
 import { Clock3 } from "lucide-react";
 import { PageHeader } from "../../shared/PageHeader";
+import { SegmentedControl } from "../../shared/SegmentedControl";
+import { Toolbar } from "../../shared/Toolbar";
 import { findGradeSession, getInitialGradeDay, gradeDays, gradeSessions, gradeSlots, gradeSubjects, type GradeDayId, type GradeSession } from "./grade.data";
+
+const dayOptions = gradeDays.map((day) => ({ value: day.id, label: day.label, shortLabel: day.shortLabel }));
 
 function SessionCard({ session }: { session: GradeSession }) {
   const style = { "--subject-color": gradeSubjects[session.subjectCode].color } as CSSProperties;
@@ -24,19 +28,15 @@ export default function GradePage() {
     <div>
       <PageHeader title="Grade semanal" description="Aulas e atendimentos do quarto semestre, organizados para consulta rápida." />
 
-      <section className="grade-toolbar" aria-label="Controles e legenda da grade">
-        <div className="grade-day-picker" aria-label="Selecionar dia da semana">
-          {gradeDays.map((day) => (
-            <button
-              className={selectedDay === day.id ? "active" : ""}
-              type="button"
-              aria-pressed={selectedDay === day.id}
-              onClick={() => setSelectedDay(day.id)}
-              key={day.id}
-            >
-              <span>{day.label}</span><abbr title={day.label}>{day.shortLabel}</abbr>
-            </button>
-          ))}
+      <Toolbar label="Controles e legenda da grade">
+        {/* The wrapper owns visibility — the picker only appears on narrow screens. */}
+        <div className="grade-day-picker">
+          <SegmentedControl
+            label="Selecionar dia da semana"
+            options={dayOptions}
+            value={selectedDay}
+            onChange={setSelectedDay}
+          />
         </div>
         <div className="grade-legend" aria-label="Cores das disciplinas">
           {Object.entries(gradeSubjects).map(([code, subject]) => (
@@ -44,9 +44,9 @@ export default function GradePage() {
           ))}
           <span><i className="grade-office-key" aria-hidden="true" />Atendimento</span>
         </div>
-      </section>
+      </Toolbar>
 
-      <div className="grade-table-shell">
+      <div className="panel grade-table-shell">
         <table className="grade-table">
           <caption className="sr-only">Grade semanal de aulas e atendimentos</caption>
           <thead>

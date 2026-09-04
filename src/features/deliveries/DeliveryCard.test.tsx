@@ -40,14 +40,14 @@ describe("DeliveryCard", () => {
     render(<DeliveryCard delivery={delivery} isAdmin={false} onEdit={() => undefined} onDelete={() => undefined} />);
     expect(screen.getByRole("heading", { name: delivery.title })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /fonte/i })).toHaveAttribute("href", delivery.source_url);
-    expect(screen.queryByRole("button", { name: /ações/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^Ações para / })).not.toBeInTheDocument();
   });
 
   it("exposes edit and delete actions to administrators", async () => {
     const user = userEvent.setup();
     const onEdit = vi.fn();
     render(<DeliveryCard delivery={delivery} isAdmin onEdit={onEdit} onDelete={() => undefined} />);
-    await user.click(screen.getByRole("button", { name: /ações/i }));
+    await user.click(screen.getByRole("button", { name: /^Ações para / }));
     await user.click(screen.getByRole("menuitem", { name: "Editar" }));
     expect(onEdit).toHaveBeenCalledWith(delivery);
   });

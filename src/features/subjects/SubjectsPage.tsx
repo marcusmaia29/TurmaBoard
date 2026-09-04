@@ -194,7 +194,7 @@ export default function SubjectsPage() {
 
       {selectedSubject && form && (
         <div className="subjects-layout">
-          <aside className="subject-selector" aria-label="Selecionar disciplina">
+          <aside className="panel subject-selector" aria-label="Selecionar disciplina">
             {activeSubjects.map((subject, index) => (
               <div className="subject-selector-item" key={subject.id}>
                 <button
@@ -215,11 +215,11 @@ export default function SubjectsPage() {
             ))}
           </aside>
 
-          <section className="subject-details">
+          <section className="panel subject-details">
             <form onSubmit={handleSave}>
               <div className="subject-title-row">
                 <span className="large-subject-code" style={{ "--subject-color": selectedSubject.color } as CSSProperties}>{selectedSubject.code}</span>
-                <div><h2>{selectedSubject.name}</h2><p>Atualizada em {new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(selectedSubject.updated_at))}</p></div>
+                <div className="subject-title-row-identity"><h2>{selectedSubject.name}</h2><p>Atualizada em {new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(selectedSubject.updated_at))}</p></div>
                 {isAdmin && (
                   <div className="subject-main-actions">
                     <button className="secondary-button danger-text" type="button" onClick={() => setPendingArchive(selectedSubject)}><Archive aria-hidden="true" /> Arquivar</button>
@@ -279,7 +279,7 @@ export default function SubjectsPage() {
       )}
 
       {isAdmin && archivedSubjects.length > 0 && (
-        <section className="archived-subjects" aria-labelledby="archived-subjects-title">
+        <section className="panel archived-subjects" aria-labelledby="archived-subjects-title">
           <div><h2 id="archived-subjects-title">Disciplinas arquivadas</h2><p>Restaurar devolve a disciplina ao final do quadro.</p></div>
           <div>
             {archivedSubjects.map((subject) => (

@@ -4,7 +4,7 @@ export function LoadingSkeleton({ columns = 4 }: { columns?: number }) {
   return (
     <div className="skeleton-grid" aria-label="Carregando conteúdo" aria-busy="true">
       {Array.from({ length: columns }, (_, index) => (
-        <div className="skeleton-column" key={index}>
+        <div className="panel skeleton-column" key={index}>
           <div className="skeleton-line skeleton-line-short" />
           <div className="skeleton-card" />
           <div className="skeleton-card skeleton-card-small" />

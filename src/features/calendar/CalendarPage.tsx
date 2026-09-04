@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { BookOpenText, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { BookOpenText, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../../shared/PageHeader";
+import { PeriodSwitcher } from "../../shared/PeriodSwitcher";
+import { ResultCount, Toolbar } from "../../shared/Toolbar";
 import { ErrorState, LoadingSkeleton } from "../../shared/feedback";
 import { formatDeadline, formatMonthTitle, getMonthRange, shiftMonth, toDateKey } from "../../lib/date";
 import { queryKeys } from "../../lib/queryKeys";
@@ -61,20 +63,22 @@ export default function CalendarPage() {
   return (
     <div>
       <PageHeader title="Calendário da turma" description="Veja prazos e anotações de aula distribuídos ao longo do mês." />
-      <section className="calendar-toolbar">
-        <button className="secondary-button" type="button" onClick={() => setReferenceDate(new Date())}>Hoje</button>
-        <div className="period-switcher">
-          <button className="icon-button" type="button" onClick={() => setReferenceDate((date) => shiftMonth(date, -1))} aria-label="Mês anterior"><ChevronLeft aria-hidden="true" /></button>
-          <strong>{formatMonthTitle(referenceDate)}</strong>
-          <button className="icon-button" type="button" onClick={() => setReferenceDate((date) => shiftMonth(date, 1))} aria-label="Próximo mês"><ChevronRight aria-hidden="true" /></button>
-        </div>
-        <span className="result-count">{(query.data?.length ?? 0) + (notesQuery.data?.length ?? 0)} itens</span>
-      </section>
+      <Toolbar label="Controles do calendário">
+        <PeriodSwitcher
+          label={formatMonthTitle(referenceDate)}
+          previousLabel="Mês anterior"
+          nextLabel="Próximo mês"
+          onPrevious={() => setReferenceDate((date) => shiftMonth(date, -1))}
+          onNext={() => setReferenceDate((date) => shiftMonth(date, 1))}
+          reset={{ label: "Hoje", onReset: () => setReferenceDate(new Date()) }}
+        />
+        <ResultCount>{(query.data?.length ?? 0) + (notesQuery.data?.length ?? 0)} itens</ResultCount>
+      </Toolbar>
 
       {(query.isLoading || notesQuery.isLoading) && <LoadingSkeleton columns={3} />}
       {(query.isError || notesQuery.isError) && <ErrorState onRetry={() => { void query.refetch(); void notesQuery.refetch(); }} />}
       {!query.isLoading && !notesQuery.isLoading && !query.isError && !notesQuery.isError && (
-        <div className="calendar-shell">
+        <div className="panel calendar-shell">
           <div className="calendar-weekdays" aria-hidden="true">{weekDayLabels.map((label) => <span key={label}>{label}</span>)}</div>
           <div className="calendar-grid">
             {calendarKeys.map((dateKey) => {

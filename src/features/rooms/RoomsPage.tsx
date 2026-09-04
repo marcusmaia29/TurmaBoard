@@ -4,6 +4,7 @@ import { AlertTriangle, Building2, Clock3, DoorOpen, LocateFixed, MapPin, Refres
 import { APP_TIME_ZONE } from "../../lib/date";
 import { EmptyState, ErrorState, LoadingSkeleton } from "../../shared/feedback";
 import { PageHeader } from "../../shared/PageHeader";
+import { ResultCount, Toolbar } from "../../shared/Toolbar";
 import { getAgenda } from "./room.service";
 import {
   CLASS_NAME,
@@ -85,8 +86,21 @@ export default function RoomsPage() {
       <PageHeader
         title="Salas"
         description="A agenda da turma e os espaços sem conflito no intervalo que você escolher."
-        action={query.data ? <span className="agenda-date">{formatAgendaDate(query.data.date)}</span> : undefined}
       />
+
+      {query.data && (
+        <Toolbar label="Controles das salas">
+          <span className="agenda-date">{formatAgendaDate(query.data.date)}</span>
+          <button className="secondary-button" type="button" onClick={() => void query.refetch()} disabled={query.isFetching}>
+            <RefreshCw className={query.isFetching ? "spin" : ""} aria-hidden="true" /> Atualizar
+          </button>
+          {validInterval && (
+            <ResultCount isLive>
+              {availableRooms.length} {availableRooms.length === 1 ? "espaço disponível" : "espaços disponíveis"} · {start}–{end}
+            </ResultCount>
+          )}
+        </Toolbar>
+      )}
 
       {query.isError && query.data && (
         <div className="rooms-stale-warning" role="status">
@@ -95,7 +109,7 @@ export default function RoomsPage() {
       )}
 
       <div className="rooms-layout">
-        <aside className="class-agenda-panel" aria-labelledby="class-agenda-title">
+        <aside className="panel class-agenda-panel" aria-labelledby="class-agenda-title">
           <div className="class-panel-heading">
             <span><UsersRound aria-hidden="true" /></span>
             <div>
@@ -145,15 +159,12 @@ export default function RoomsPage() {
           </details>
         </aside>
 
-        <section className="available-rooms-panel" aria-labelledby="available-rooms-title">
+        <section className="panel available-rooms-panel" aria-labelledby="available-rooms-title">
           <div className="available-heading">
             <div>
               <p>Consulta operacional</p>
               <h2 id="available-rooms-title">Salas disponíveis</h2>
             </div>
-            <button className="secondary-button" type="button" onClick={() => void query.refetch()} disabled={query.isFetching}>
-              <RefreshCw className={query.isFetching ? "spin" : ""} aria-hidden="true" /> Atualizar
-            </button>
           </div>
 
           <div className="room-filters">
@@ -181,11 +192,6 @@ export default function RoomsPage() {
             <div className="interval-error" role="alert">O horário final precisa ser posterior ao inicial.</div>
           ) : (
             <>
-              <div className="rooms-result-bar" aria-live="polite">
-                <strong>{availableRooms.length} {availableRooms.length === 1 ? "espaço disponível" : "espaços disponíveis"}</strong>
-                <span>das {start} às {end}</span>
-              </div>
-
               {roomGroups.length ? (
                 <div className="room-groups">
                   {roomGroups.map((group) => (

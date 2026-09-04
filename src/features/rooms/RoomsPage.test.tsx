@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AgendaResponse } from "./agenda.types";
 import RoomsPage from "./RoomsPage";
 import { getAgenda } from "./room.service";
@@ -52,7 +52,17 @@ function renderPage() {
 }
 
 describe("RoomsPage", () => {
-  afterEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    // The page reads the wall clock for "agora". Pin it to 10:00 in São Paulo so
+    // the fixture class (09:45–11:30) is the highlighted one at every run.
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(new Date("2026-09-02T13:00:00Z"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.clearAllMocks();
+  });
 
   it("exibe a agenda fixa da turma e os controles da consulta", async () => {
     vi.mocked(getAgenda).mockResolvedValue(agenda);
@@ -68,7 +78,7 @@ describe("RoomsPage", () => {
 
   it("valida um intervalo invertido sem fazer uma consulta enganosa", async () => {
     vi.mocked(getAgenda).mockResolvedValue(agenda);
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     renderPage();
     await screen.findByRole("heading", { name: "Salas" });
 

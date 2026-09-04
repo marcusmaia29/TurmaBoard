@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, FilePenLine, Plus, Trash2 } from "lucide-react";
+import { FilePenLine, Plus, Trash2 } from "lucide-react";
 import { PageHeader } from "../../shared/PageHeader";
+import { PeriodSwitcher } from "../../shared/PeriodSwitcher";
 import { EmptyState, ErrorState, LoadingSkeleton } from "../../shared/feedback";
 import { queryKeys } from "../../lib/queryKeys";
 import { APP_TIME_ZONE } from "../../lib/date";
@@ -25,7 +26,7 @@ export default function HistoryPage() {
       {!query.isLoading && !query.isError && !query.data?.entries.length && <EmptyState title="Histórico vazio" description="As próximas alterações aparecerão aqui automaticamente." />}
       {!!query.data?.entries.length && (
         <>
-          <ol className="history-list">
+          <ol className="panel history-list">
             {query.data.entries.map((entry) => {
               const action = actionCopy[entry.action];
               const Icon = action.icon;
@@ -39,9 +40,15 @@ export default function HistoryPage() {
             })}
           </ol>
           <div className="pagination">
-            <button className="secondary-button" type="button" disabled={page === 0} onClick={() => setPage((value) => value - 1)}><ChevronLeft aria-hidden="true" /> Anterior</button>
-            <span>Página {page + 1}</span>
-            <button className="secondary-button" type="button" disabled={!query.data.hasNextPage} onClick={() => setPage((value) => value + 1)}>Próxima <ChevronRight aria-hidden="true" /></button>
+            <PeriodSwitcher
+              label={`Página ${page + 1}`}
+              previousLabel="Página anterior"
+              nextLabel="Próxima página"
+              onPrevious={() => setPage((value) => value - 1)}
+              onNext={() => setPage((value) => value + 1)}
+              isPreviousDisabled={page === 0}
+              isNextDisabled={!query.data.hasNextPage}
+            />
           </div>
         </>
       )}

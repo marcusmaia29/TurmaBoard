@@ -1,17 +1,21 @@
-import { BookOpen, Building2, CalendarDays, Github, History, LayoutDashboard, LogIn, LogOut, RefreshCw, ShieldCheck, Table2, UserRound, WifiOff } from "lucide-react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { BookOpen, Building2, CalendarDays, ChevronDown, ExternalLink, Github, History, LayoutDashboard, LogIn, LogOut, MoreHorizontal, RefreshCw, ShieldCheck, Table2, UserRound, WifiOff } from "lucide-react";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/AuthContext";
 import { isSupabaseConfigured } from "../lib/supabase";
+import { Menu } from "./Menu";
 import { useToast } from "./ToastContext";
 import { useRealtimeStatus } from "../features/realtime/realtime.context";
 
-const navigation = [
+const primaryNavigation = [
   { to: "/week", label: "Semana", icon: LayoutDashboard },
   { to: "/calendar", label: "Calendário", icon: CalendarDays },
   { to: "/subjects", label: "Disciplinas", icon: BookOpen },
+  { to: "/rooms", label: "Salas", icon: Building2 },
+];
+
+const secondaryNavigation = [
   { to: "/history", label: "Histórico", icon: History },
   { to: "/grade", label: "Grade", icon: Table2 },
-  { to: "/rooms", label: "Salas", icon: Building2 },
 ];
 
 export function AppShell() {
@@ -19,6 +23,10 @@ export function AppShell() {
   const { status: realtimeStatus, retry: retryRealtime } = useRealtimeStatus();
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  // Without this the two destinations behind the menu lose the "you are here"
+  // signal that .nav-link.active gives every other destination.
+  const isSecondarySectionOpen = secondaryNavigation.some((item) => pathname.startsWith(item.to));
 
   async function handleSignOut() {
     try {
@@ -41,46 +49,85 @@ export function AppShell() {
           </span>
         </NavLink>
 
-        <nav className="main-nav" aria-label="Navegação principal">
-          {navigation.map(({ to, label, icon: Icon }) => (
-            <NavLink className={({ isActive }) => `nav-link${isActive ? " active" : ""}`} to={to} aria-label={label} key={to}>
-              <Icon aria-hidden="true" />
-              <span>{label}</span>
-            </NavLink>
-          ))}
-          <a
-            className="nav-link"
-            href="https://github.com/marcusmaia29/TurmaBoard"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Dar uma estrela no TurmaBoard no GitHub"
-            title="Star"
-          >
-            <Github aria-hidden="true" />
-            <span>Star</span>
-          </a>
-        </nav>
+        <div className="nav-cluster">
+          <nav className="main-nav" aria-label="Navegação principal">
+            {primaryNavigation.map(({ to, label, icon: Icon }) => (
+              <NavLink className={({ isActive }) => `nav-link${isActive ? " active" : ""}`} to={to} aria-label={label} key={to}>
+                <Icon aria-hidden="true" />
+                <span>{label}</span>
+              </NavLink>
+            ))}
+          </nav>
 
-        <div className="account-area">
-          {isLoading ? (
-            <span className="account-status" aria-live="polite">Verificando acesso…</span>
-          ) : session ? (
-            <>
-              <span className={isAdmin ? "admin-badge" : "member-badge"}>
-                {isAdmin ? <ShieldCheck aria-hidden="true" /> : <UserRound aria-hidden="true" />}
-                {isAdmin ? "Admin" : "Leitor"}
-              </span>
-              <button className="icon-button" type="button" onClick={() => void handleSignOut()} title="Sair">
-                <LogOut aria-hidden="true" />
-                <span className="sr-only">Sair</span>
-              </button>
-            </>
-          ) : (
-            <NavLink className="login-link" to="/login">
-              <LogIn aria-hidden="true" /> Entrar
-            </NavLink>
-          )}
+          <Menu
+            label="Mais ações"
+            className="menu-wrapper nav-menu"
+            triggerClassName={`nav-link nav-menu-trigger${isSecondarySectionOpen ? " active" : ""}`}
+            panelClassName="menu-panel menu-panel-wide"
+            triggerContent={
+              <>
+                <MoreHorizontal aria-hidden="true" />
+                <span>Mais ações</span>
+                <ChevronDown className="menu-chevron" aria-hidden="true" />
+              </>
+            }
+          >
+            {(close) => (
+              <>
+                {secondaryNavigation.map(({ to, label, icon: Icon }) => (
+                  <NavLink className={({ isActive }) => (isActive ? "active" : "")} to={to} onClick={close} key={to}>
+                    <Icon aria-hidden="true" />
+                    <span>{label}</span>
+                  </NavLink>
+                ))}
+
+                <span className="menu-separator" aria-hidden="true" />
+
+                <a
+                  href="https://github.com/marcusmaia29/TurmaBoard"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Dar uma estrela no TurmaBoard no GitHub"
+                  onClick={close}
+                >
+                  <Github aria-hidden="true" />
+                  <span>Star</span>
+                  <ExternalLink className="menu-external" aria-hidden="true" />
+                </a>
+
+                {isLoading && (
+                  <>
+                    <span className="menu-separator" aria-hidden="true" />
+                    <span className="menu-note" aria-live="polite">Verificando acesso…</span>
+                  </>
+                )}
+                {!isLoading && session && (
+                  <>
+                    <span className="menu-separator" aria-hidden="true" />
+                    <span className="menu-note">
+                      <span className={isAdmin ? "admin-badge" : "member-badge"}>
+                        {isAdmin ? <ShieldCheck aria-hidden="true" /> : <UserRound aria-hidden="true" />}
+                        {isAdmin ? "Admin" : "Leitor"}
+                      </span>
+                    </span>
+                    <button className="danger-action" type="button" onClick={() => { close(); void handleSignOut(); }}>
+                      <LogOut aria-hidden="true" />
+                      <span>Sair</span>
+                    </button>
+                  </>
+                )}
+              </>
+            )}
+          </Menu>
         </div>
+
+        {!isLoading && !session && (
+          <div className="account-area">
+            <NavLink className="login-link" to="/login">
+              <LogIn aria-hidden="true" /><span>Entrar</span>
+            </NavLink>
+          </div>
+        )}
       </header>
 
       {!isSupabaseConfigured && (

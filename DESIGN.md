@@ -38,9 +38,11 @@ typography:
     fontWeight: 700
     lineHeight: 1.3
 rounded:
-  sm: "0.4rem"
+  xs: "0.35rem"
+  sm: "0.55rem"
   md: "0.65rem"
   lg: "0.9rem"
+  pill: "999px"
 spacing:
   xs: "0.25rem"
   sm: "0.5rem"
@@ -182,7 +184,30 @@ O sistema é plano por padrão. Bordas e mudança tonal definem agrupamento; som
 
 ### Navigation
 
-A navegação usa ícone e rótulo no desktop. O item ativo recebe fundo azul suave e borda azul; em telas estreitas, os ícones permanecem com rótulos acessíveis.
+Quatro destinos ficam sempre visíveis — Semana, Calendário, Disciplinas e Salas. O restante vive num menu vertical chamado **Mais ações**, que também reúne o selo de papel e a saída da sessão. O item ativo recebe fundo azul suave e borda azul; quando a rota atual está dentro do menu, o próprio gatilho assume esse estado, para que a indicação de posição nunca se perca.
+
+Abaixo de 940px a navegação desce para a própria linha do cabeçalho. Abaixo de 760px vira uma barra de abas com ícone em cima e rótulo embaixo — o rótulo permanece **visível**, nunca apenas acessível.
+
+### Toolbar
+
+Um único bloco de controle entre o título e o conteúdo, com até duas faixas: a primeira para navegação de período, ações de contexto e a contagem de resultados; a segunda para filtros ou legenda. A navegação de período é sempre `‹ rótulo ›` com um botão **Hoje** ao lado — nunca um link solto sob o rótulo.
+
+### Filtros e alternadores
+
+Dois controles distintos, que não devem ser fundidos:
+
+- **Chips de filtro** — pílulas de largura natural que **restringem** uma lista.
+- **Controle segmentado** — opções de largura igual que **alternam** entre visões do mesmo dado.
+
+Ambos usam `aria-pressed` em botões reais dentro de um grupo rotulado.
+
+### Menus
+
+Um gatilho com `aria-expanded` e um painel logo abaixo. O painel nunca é renderizado em portal: o fechamento por clique fora depende de o wrapper conter o alvo do evento. Comandos usam `role="menu"`; destinos de rota usam links de verdade, porque `role="menuitem"` substituiria o papel implícito de link.
+
+### Panel
+
+Uma única superfície para todo contêiner de conteúdo: folha branca, linha de 1px, cantos `lg` e sombra baixa. Cards com cor de disciplina, elevação própria ou gradiente deliberado ficam fora desse padrão.
 
 ### Grade semanal
 
@@ -203,6 +228,7 @@ No desktop, use uma matriz completa de cinco dias. No celular, mostre um dia por
 - **Don't** crie painéis corporativos densos ou fluxos de kanban pessoal.
 - **Don't** use animação decorativa, gradientes de fundo ou brilho em elementos coloridos.
 - **Don't** permita cores de disciplina competindo com ações primárias.
-- **Don't** esconda ações primárias em menus ou dependa de hover para revelar informação.
+- **Don't** esconda ações primárias em menus ou dependa de hover para revelar informação. Os quatro destinos principais e os filtros da semana ficam sempre à vista; só o secundário entra em **Mais ações**.
+- **Don't** use `font-size: 0` para transformar botão em ícone: o rótulo continua na árvore de acessibilidade sem estar visível. Use `.sr-only`.
 - **Don't** coloque textos longos em cards de visão geral.
 - **Don't** confie apenas na cor para matéria, tipo, urgência ou estado.
