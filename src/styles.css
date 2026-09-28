@@ -295,16 +295,16 @@ h1, h2, h3, p { text-wrap: pretty; }
 .details-link { margin-top: .5rem; }
 
 .calendar-shell { overflow-x: auto; }
-.calendar-weekdays, .calendar-grid { min-width: 760px; display: grid; grid-template-columns: repeat(7, 1fr); }
+.calendar-weekdays, .calendar-grid { min-width: 760px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .calendar-weekdays { color: var(--color-muted); background: oklch(0.97 0.006 260); border-bottom: 1px solid var(--color-line); }
 .calendar-weekdays span { padding: .65rem; font-size: .68rem; font-weight: 750; text-align: center; }
-.calendar-day { min-height: 8.1rem; padding: .55rem; border-right: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); }
+.calendar-day { min-width: 0; min-height: 8.1rem; padding: .55rem; border-right: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); }
 .calendar-day:nth-child(7n) { border-right: 0; }
 .calendar-day.outside { background: oklch(0.975 0.004 260); color: oklch(0.65 0.02 260); }
 .calendar-day time { width: 1.7rem; height: 1.7rem; display: grid; place-items: center; border-radius: 50%; font-size: .72rem; font-weight: 700; }
 .calendar-day.today time { color: white; background: var(--color-brand-600); }
 .calendar-events { margin-top: .35rem; display: flex; flex-direction: column; gap: .25rem; }
-.calendar-event { width: 100%; min-height: 2rem; padding: .32rem .4rem; overflow: hidden; color: color-mix(in oklch, var(--subject-color) 76%, black); background: color-mix(in oklch, var(--subject-color) 12%, white); border: 1px solid color-mix(in oklch, var(--subject-color) 26%, white); border-radius: var(--radius-xs); font-size: .63rem; font-weight: 700; text-align: left; white-space: nowrap; text-overflow: ellipsis; }
+.calendar-event { width: 100%; min-width: 0; min-height: 2rem; padding: .32rem .4rem; overflow: hidden; color: color-mix(in oklch, var(--subject-color) 76%, black); background: color-mix(in oklch, var(--subject-color) 12%, white); border: 1px solid color-mix(in oklch, var(--subject-color) 26%, white); border-radius: var(--radius-xs); font-size: .63rem; font-weight: 700; text-align: left; white-space: nowrap; text-overflow: ellipsis; }
 .calendar-event:hover { background: color-mix(in oklch, var(--subject-color) 18%, white); }
 .calendar-event span { margin-right: .2rem; font-variant-numeric: tabular-nums; }
 
