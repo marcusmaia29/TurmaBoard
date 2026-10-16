@@ -21,6 +21,7 @@ function renderShell(initialEntry = "/week") {
           <Route path="/week" element={<p>Semana</p>} />
           <Route path="/history" element={<p>Histórico da turma</p>} />
           <Route path="/grade" element={<p>Grade semanal</p>} />
+          <Route path="/vagas" element={<p>Oportunidades da turma</p>} />
         </Route>
       </Routes>
     </MemoryRouter>,
@@ -67,6 +68,7 @@ describe("AppShell", () => {
     renderShell();
 
     await user.click(moreActionsTrigger());
+    expect(screen.getByRole("link", { name: "Vagas" })).toHaveAttribute("href", "/vagas");
     expect(screen.getByRole("link", { name: "Histórico" })).toHaveAttribute("href", "/history");
     expect(screen.getByRole("link", { name: "Grade" })).toHaveAttribute("href", "/grade");
 
@@ -74,6 +76,20 @@ describe("AppShell", () => {
 
     expect(screen.getByText("Histórico da turma")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Grade" })).not.toBeInTheDocument();
+  });
+
+  it("opens vacancies from Mais ações with the keyboard", async () => {
+    const user = userEvent.setup();
+    renderShell();
+
+    moreActionsTrigger().focus();
+    await user.keyboard("{Enter}");
+    const link = screen.getByRole("link", { name: "Vagas" });
+    link.focus();
+    await user.keyboard("{Enter}");
+
+    expect(screen.getByText("Oportunidades da turma")).toBeInTheDocument();
+    expect(moreActionsTrigger()).toHaveClass("active");
   });
 
   it("marks the trigger as active while a destination inside the menu is open", () => {

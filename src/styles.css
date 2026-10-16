@@ -201,6 +201,76 @@ h1, h2, h3, p { text-wrap: pretty; }
 .skeleton-card-small { height: 7rem; }
 @keyframes skeleton { to { background-position: -200% 0; } }
 
+/* Vagas */
+.vacancies-layout { display: grid; grid-template-columns: minmax(15.5rem, 17.5rem) minmax(0, 1fr); align-items: start; gap: 1rem; }
+.vacancies-filters { min-width: 0; padding: 1rem; }
+.vacancies-filters-heading, .vacancies-filter-title { display: flex; align-items: center; gap: .5rem; }
+.vacancies-filters-heading { justify-content: space-between; margin-bottom: 1rem; }
+.vacancies-filter-title svg { color: var(--color-brand-700); }
+.vacancies-filter-title h2, .vacancies-results-heading h2 { margin: 0; font-size: 1rem; line-height: 1.3; }
+.vacancies-filters-heading > button { padding: .35rem 0; color: var(--color-brand-700); background: transparent; border: 0; font-size: .72rem; font-weight: 750; }
+.vacancies-filters-heading > button:hover, .vacancy-provenance a:hover, .vacancy-official-link:hover { text-decoration: underline; }
+.vacancy-search { display: block; }
+.vacancy-search > span:first-child, .vacancies-filter-fields legend { display: block; margin-bottom: .45rem; color: var(--color-ink); font-size: .75rem; font-weight: 750; }
+.vacancy-search-field { min-height: 2.75rem; padding: 0 .7rem; display: flex; align-items: center; gap: .45rem; background: white; border: 1px solid var(--color-line); border-radius: var(--radius-md); }
+.vacancy-search-field:focus-within { border-color: var(--color-brand-600); outline: 3px solid var(--color-brand-100); }
+.vacancy-search-field svg { color: var(--color-muted); }
+.vacancy-search-field input { width: 100%; min-width: 0; height: 2.6rem; border: 0; outline: 0; color: var(--color-ink); background: transparent; font-size: .8rem; }
+.vacancy-search-field input::placeholder { color: var(--color-muted); }
+.vacancies-filter-toggle { display: none; }
+.vacancies-filter-fields fieldset { margin: 1.1rem 0 0; padding: 1rem 0 0; border: 0; border-top: 1px solid var(--color-line); }
+.vacancies-filter-fields legend { padding: 0; }
+.vacancies-filter-fields label { min-height: 2.5rem; display: flex; align-items: center; gap: .55rem; color: var(--color-ink); font-size: .78rem; line-height: 1.3; cursor: pointer; }
+.vacancies-filter-fields input { width: 1rem; height: 1rem; margin: 0; accent-color: var(--color-brand-600); }
+.vacancies-results { min-width: 0; overflow: hidden; }
+.vacancies-results-heading { min-height: 5rem; padding: 1rem 1.2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--color-line); }
+.vacancies-results-heading p { margin: .25rem 0 0; color: var(--color-muted); font-size: .74rem; }
+.vacancies-count { white-space: nowrap; color: var(--color-muted); font-size: .76rem; font-weight: 750; }
+.vacancies-results-body { padding: 1rem; }
+.vacancies-filter-empty { display: flex; flex-direction: column; align-items: center; gap: .9rem; }
+.vacancies-filter-empty .empty-state { width: 100%; }
+.vacancies-list { margin: 0; padding: 0; list-style: none; }
+.vacancy-row + .vacancy-row { border-top: 1px solid var(--color-line); }
+.vacancy-row article { padding: 1.2rem; }
+.vacancy-row-main { display: flex; justify-content: space-between; align-items: start; gap: 1.25rem; }
+.vacancy-row h3 { margin: 0; font-size: 1rem; line-height: 1.35; letter-spacing: -.015em; }
+.vacancy-company { margin: .25rem 0 0; color: var(--color-muted); font-size: .78rem; font-weight: 650; }
+.vacancy-company span { margin: 0 .15rem; }
+.vacancy-deadline { min-width: 10.5rem; display: flex; flex-direction: column; gap: .2rem; text-align: right; }
+.vacancy-deadline span { color: var(--color-muted); font-size: .7rem; }
+.vacancy-deadline time, .vacancy-deadline strong { color: var(--color-ink); font-size: .78rem; font-weight: 750; }
+.vacancy-details { margin-top: .8rem; display: flex; flex-wrap: wrap; gap: .45rem 1rem; }
+.vacancy-details span { display: inline-flex; align-items: center; gap: .35rem; color: var(--color-muted); font-size: .76rem; }
+.vacancy-details svg { width: .9rem; height: .9rem; }
+.vacancy-summary { max-width: 70ch; margin: .75rem 0 0; color: var(--color-ink); font-size: .79rem; line-height: 1.5; }
+.vacancy-row-footer { margin-top: .95rem; padding-top: .8rem; display: flex; align-items: end; justify-content: space-between; gap: .8rem; border-top: 1px solid var(--color-line); }
+.vacancy-provenance { display: flex; flex-direction: column; gap: .25rem; color: var(--color-muted); font-size: .7rem; line-height: 1.4; }
+.vacancy-provenance a { color: var(--color-brand-700); font-weight: 700; }
+.vacancy-official-link { min-height: 2.75rem; padding: .5rem .7rem; display: inline-flex; align-items: center; gap: .4rem; white-space: nowrap; color: var(--color-brand-700); border: 1px solid var(--color-brand-100); border-radius: var(--radius-md); font-size: .76rem; font-weight: 750; }
+.vacancy-official-link:hover { background: var(--color-brand-50); }
+.vacancy-official-link svg { width: .85rem; height: .85rem; }
+
+@media (max-width: 850px) {
+  .vacancies-layout { grid-template-columns: minmax(0, 1fr); }
+  .vacancies-filters { padding: .9rem 1rem; }
+  .vacancies-filters-heading { margin-bottom: .7rem; }
+  .vacancies-filter-toggle { min-height: 2.75rem; margin-top: .7rem; padding: 0 .7rem; display: inline-flex; align-items: center; gap: .45rem; color: var(--color-ink); background: var(--color-soft); border: 1px solid var(--color-line); border-radius: var(--radius-md); font-size: .78rem; font-weight: 750; }
+  .vacancies-filter-fields { display: none; }
+  .vacancies-filter-fields.open { display: block; }
+  .vacancies-filter-fields fieldset { display: flex; flex-wrap: wrap; gap: .2rem 1rem; }
+  .vacancies-filter-fields label { min-width: 9rem; }
+}
+
+@media (max-width: 600px) {
+  .vacancies-results-heading { padding: .9rem 1rem; }
+  .vacancies-results-heading p { display: none; }
+  .vacancy-row article { padding: 1rem; }
+  .vacancy-row-main { flex-direction: column; gap: .6rem; }
+  .vacancy-deadline { min-width: 0; flex-direction: row; align-items: baseline; gap: .4rem; text-align: left; }
+  .vacancy-row-footer { align-items: start; flex-direction: column; }
+  .vacancy-official-link { align-self: stretch; justify-content: center; }
+}
+
 /* Salas */
 .agenda-date { padding: .48rem .72rem; color: var(--color-brand-700); background: var(--color-brand-50); border: 1px solid var(--color-brand-100); border-radius: var(--radius-sm); font-size: .75rem; font-weight: 750; text-transform: capitalize; }
 .rooms-stale-warning { margin: -0.45rem 0 1rem; padding: .65rem .8rem; display: flex; align-items: center; gap: .5rem; color: oklch(0.4 0.09 70); background: oklch(0.96 0.045 80); border: 1px solid oklch(0.87 0.07 80); border-radius: var(--radius-md); font-size: .75rem; font-weight: 650; }

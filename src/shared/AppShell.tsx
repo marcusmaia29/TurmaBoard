@@ -1,4 +1,4 @@
-import { BookOpen, Building2, CalendarDays, ChevronDown, ExternalLink, Github, History, LayoutDashboard, LogIn, LogOut, MoreHorizontal, RefreshCw, ShieldCheck, Table2, UserRound, WifiOff } from "lucide-react";
+import { BookOpen, BriefcaseBusiness, Building2, CalendarDays, ChevronDown, ExternalLink, Github, History, LayoutDashboard, LogIn, LogOut, MoreHorizontal, RefreshCw, ShieldCheck, Table2, UserRound, WifiOff } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/AuthContext";
 import { isSupabaseConfigured } from "../lib/supabase";
@@ -14,6 +14,7 @@ const primaryNavigation = [
 ];
 
 const secondaryNavigation = [
+  { to: "/vagas", label: "Vagas", icon: BriefcaseBusiness },
   { to: "/history", label: "Histórico", icon: History },
   { to: "/grade", label: "Grade", icon: Table2 },
 ];
@@ -24,7 +25,7 @@ export function AppShell() {
   const { showToast } = useToast();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  // Without this the two destinations behind the menu lose the "you are here"
+  // Without this the destinations behind the menu lose the "you are here"
   // signal that .nav-link.active gives every other destination.
   const isSecondarySectionOpen = secondaryNavigation.some((item) => pathname.startsWith(item.to));
 

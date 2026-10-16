@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -7,11 +7,6 @@
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5"
-  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -392,6 +387,72 @@ export type Database = {
         }
         Relationships: []
       }
+      vacancies: {
+        Row: {
+          application_deadline: string | null
+          application_url: string
+          area: Database["public"]["Enums"]["vacancy_area"]
+          company: string
+          created_at: string
+          first_seen_at: string
+          id: string
+          internship_period: string | null
+          last_seen_at: string
+          last_verified_at: string | null
+          location: string | null
+          opening_status: Database["public"]["Enums"]["vacancy_opening_status"]
+          review_status: Database["public"]["Enums"]["vacancy_review_status"]
+          source_name: string
+          source_url: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+          work_mode: Database["public"]["Enums"]["vacancy_work_mode"] | null
+        }
+        Insert: {
+          application_deadline?: string | null
+          application_url: string
+          area: Database["public"]["Enums"]["vacancy_area"]
+          company: string
+          created_at?: string
+          first_seen_at?: string
+          id?: string
+          internship_period?: string | null
+          last_seen_at?: string
+          last_verified_at?: string | null
+          location?: string | null
+          opening_status?: Database["public"]["Enums"]["vacancy_opening_status"]
+          review_status?: Database["public"]["Enums"]["vacancy_review_status"]
+          source_name: string
+          source_url?: string | null
+          summary?: string | null
+          title: string
+          updated_at?: string
+          work_mode?: Database["public"]["Enums"]["vacancy_work_mode"] | null
+        }
+        Update: {
+          application_deadline?: string | null
+          application_url?: string
+          area?: Database["public"]["Enums"]["vacancy_area"]
+          company?: string
+          created_at?: string
+          first_seen_at?: string
+          id?: string
+          internship_period?: string | null
+          last_seen_at?: string
+          last_verified_at?: string | null
+          location?: string | null
+          opening_status?: Database["public"]["Enums"]["vacancy_opening_status"]
+          review_status?: Database["public"]["Enums"]["vacancy_review_status"]
+          source_name?: string
+          source_url?: string | null
+          summary?: string | null
+          title?: string
+          updated_at?: string
+          work_mode?: Database["public"]["Enums"]["vacancy_work_mode"] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -405,6 +466,16 @@ export type Database = {
       delivery_type: "quiz" | "exam" | "aps" | "project" | "activity" | "notice"
       lesson_note_format: "markdown" | "latex"
       user_role: "admin" | "member"
+      vacancy_area:
+        | "software"
+        | "data_ai"
+        | "infrastructure"
+        | "security"
+        | "product"
+        | "other"
+      vacancy_opening_status: "open" | "closed"
+      vacancy_review_status: "pending" | "approved" | "rejected"
+      vacancy_work_mode: "onsite" | "hybrid" | "remote"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -420,12 +491,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -449,11 +520,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -474,11 +545,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -499,11 +570,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -516,11 +587,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never) = never,
+    : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -540,6 +611,17 @@ export const Constants = {
       delivery_type: ["quiz", "exam", "aps", "project", "activity", "notice"],
       lesson_note_format: ["markdown", "latex"],
       user_role: ["admin", "member"],
+      vacancy_area: [
+        "software",
+        "data_ai",
+        "infrastructure",
+        "security",
+        "product",
+        "other",
+      ],
+      vacancy_opening_status: ["open", "closed"],
+      vacancy_review_status: ["pending", "approved", "rejected"],
+      vacancy_work_mode: ["onsite", "hybrid", "remote"],
     },
   },
 } as const
