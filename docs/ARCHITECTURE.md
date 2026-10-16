@@ -23,6 +23,7 @@ Security, and Realtime provide persistence, authorization, and synchronization.
 | `/calendar` | `calendar` | Monthly view of the same delivery records |
 | `/subjects` | `subjects` | Subject notes and reference links |
 | `/history` | `history` | Paginated audit history |
+| `/vagas` | `vacancies` | Public read of approved, open internships; URL-based search and filters |
 | `/login` | `auth` | Shared administrator sign-in |
 
 Unknown routes redirect to `/week`. Vercel rewrites browser requests to the SPA
@@ -68,6 +69,14 @@ same caches for changes made by another client.
 
 Realtime improves freshness but is not required for correctness. Initial reads
 and mutation responses still come through the Data API.
+
+The vacancies page reads `public.vacancies` through the Data API. Its RLS policy
+limits both anonymous and authenticated readers to approved, open opportunities
+whose stated application deadline has not passed in São Paulo. Search, area and
+work-mode filters run in the browser and remain in the URL. Collection and
+administrative review remain future work. Manual publication uses a local
+maintainer CLI and a secret key outside the Vite bundle; see
+`docs/VACANCY_MANUAL_WORKFLOW.md`.
 
 ## Authentication and authorization
 

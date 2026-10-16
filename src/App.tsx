@@ -12,6 +12,7 @@ const LessonNoteEditorPage = lazy(() => import("./features/lesson-notes/LessonNo
 const HistoryPage = lazy(() => import("./features/history/HistoryPage"));
 const GradePage = lazy(() => import("./features/grade/GradePage"));
 const RoomsPage = lazy(() => import("./features/rooms/RoomsPage"));
+const VacanciesPage = lazy(() => import("./features/vacancies/VacanciesPage"));
 const LoginPage = lazy(() => import("./features/auth/LoginPage"));
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/grade" element={<GradePage />} />
             <Route path="/rooms" element={<RoomsPage />} />
+            <Route path="/vagas" element={<VacanciesPage />} />
           </Route>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<Navigate to="/week" replace />} />

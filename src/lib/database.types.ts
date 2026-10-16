@@ -15,6 +15,9 @@ export type AuditEntry = Database["public"]["Tables"]["audit_log"]["Row"];
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type LessonNote = Database["public"]["Tables"]["lesson_notes"]["Row"];
 export type LessonNoteImage = Database["public"]["Tables"]["lesson_note_images"]["Row"];
+export type Vacancy = Database["public"]["Tables"]["vacancies"]["Row"];
+export type VacancyArea = Database["public"]["Enums"]["vacancy_area"];
+export type VacancyWorkMode = Database["public"]["Enums"]["vacancy_work_mode"];
 
 export type DeliveryWithSubject = Delivery & { subject: Subject };
 export type SubjectWithLinks = Subject & { subject_links: SubjectLink[] };
