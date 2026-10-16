@@ -6,7 +6,8 @@
 TurmaBoard is a shared academic board for one undergraduate class. Anyone can
 read the weekly deadlines, the monthly calendar, the class timetable, room
 availability, course references, and the change history without signing in.
-Administrators maintain the published content.
+Students can also browse verified vacation internships and open applications on
+official source sites. Administrators maintain the published content.
 
 **Production:** [turmaboard.vercel.app](https://turmaboard.vercel.app)
 
@@ -23,9 +24,10 @@ tests, and technical documentation are written in English.
 | `/history` | Histórico | Paginated audit trail of every content change |
 | `/grade` | Grade | Static weekly class timetable |
 | `/rooms` | Salas | Room availability, read from the Insper agenda feed |
+| `/vagas` | Vagas | Public list of approved, open vacation internships |
 | `/login` | — | Administrator sign-in |
 
-`/week`, `/calendar`, `/subjects` and `/history` are backed by Supabase.
+`/week`, `/calendar`, `/subjects`, `/history` and `/vagas` are backed by Supabase.
 `/grade` is static data in the repository. `/rooms` reads a public upstream feed
 through the project's only serverless endpoint.
 
@@ -36,6 +38,8 @@ through the project's only serverless endpoint.
 - [Architecture](./docs/ARCHITECTURE.md) — runtime structure and boundaries
 - [Database and Supabase](./docs/DATABASE.md) — schema, roles, RLS, migrations
 - [Rooms and the agenda feed](./docs/AGENDA.md) — the serverless endpoint
+- [Vacancy collection research](./docs/VACANCY_COLLECTION_RESEARCH.md) — issue #9 sources and tools
+- [Manual vacancy publication](./docs/VACANCY_MANUAL_WORKFLOW.md) — official-source checks and local CLI
 - [Testing and verification](./docs/TESTING.md) — what to run before handoff
 - [Contribution workflow](./CONTRIBUTING.md) — setup, branches, commits, reviews
 - [Architecture decisions](./docs/decisions/) — the reasoning behind key choices

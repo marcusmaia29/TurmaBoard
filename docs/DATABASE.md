@@ -15,9 +15,11 @@ have been applied outside a disposable local database.
 | `subject_links` | Additional ordered links per subject | Cascades with subject |
 | `deliveries` | Shared deadlines and notices | Soft deletion via `deleted_at` |
 | `audit_log` | Immutable record of content changes | Populated by triggers |
+| `vacancies` | Vacation internship opportunities | Public reads require approved review, open state, and a current or missing application deadline |
 
 The enums `user_role`, `delivery_type`, `delivery_status`, and `audit_action`
 form contracts shared by SQL and generated TypeScript types.
+The vacancy enums define area, work mode, review status, and opening status.
 
 ## Authorization model
 
@@ -26,6 +28,10 @@ form contracts shared by SQL and generated TypeScript types.
 - A user may read their own profile.
 - The browser uses a publishable key; RLS remains enabled on every exposed table.
 - New exposed tables require both explicit grants and appropriate RLS policies.
+- `vacancies` grants public `SELECT` only. Its read policy filters unapproved,
+  rejected, closed, and expired rows. A controlled local CLI writes through a
+  secret key mapped to `service_role`, which has explicit `SELECT`, `INSERT`,
+  and `UPDATE` grants. No public write policy or endpoint exists.
 
 Do not use frontend checks, editable user metadata, or a `VITE_` secret as an
 authorization mechanism.
