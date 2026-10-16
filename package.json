@@ -21,6 +21,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "storage:provision": "node scripts/provision-lesson-note-storage.mjs",
+    "vacancies": "node --env-file-if-exists=.env.vacancies.local scripts/vacancies.mjs",
+    "vacancies:test:local": "node --env-file-if-exists=.env.vacancies.local scripts/vacancies/local-integration.mjs",
     "types:generate": "supabase gen types typescript --local > src/lib/database.generated.ts",
     "preview": "vite preview"
   },
