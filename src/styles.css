@@ -503,12 +503,14 @@ h1, h2, h3, p { text-wrap: pretty; }
 .note-format { width: fit-content; padding: .28rem .45rem; display: inline-flex; align-items: center; gap: .3rem; color: var(--color-brand-700); background: var(--color-brand-50); border-radius: .35rem; font-size: .63rem; font-weight: 800; }
 .note-format svg { width: .75rem; height: .75rem; }
 .note-reader-actions { display: flex; gap: .4rem; }
-.note-reader-content { width: min(100%, 54rem); padding: 1.6rem; }
+.note-reader-content { width: 100%; padding: 1.6rem; }
 .note-reader > footer { margin-top: auto; padding: .8rem 1.5rem; color: var(--color-muted); background: var(--color-soft); border-top: 1px solid var(--color-line); font-size: .62rem; }
 .mobile-notes-back { display: none; }
-.lesson-note-markdown { max-width: 72ch; color: oklch(0.32 0.03 260); font-size: .88rem; line-height: 1.72; }
+.lesson-note-markdown { color: oklch(0.32 0.03 260); font-size: .88rem; line-height: 1.72; }
+.lesson-note-markdown > :not(.lesson-note-diagram):not(.dialog-backdrop):not(table) { max-width: 72ch; }
 .lesson-note-markdown > :first-child { margin-top: 0; }
 .lesson-note-markdown h1, .lesson-note-markdown h2, .lesson-note-markdown h3 { margin: 1.5em 0 .55em; color: var(--color-ink); letter-spacing: -.02em; }
+.lesson-note-markdown h1[id], .lesson-note-markdown h2[id], .lesson-note-markdown h3[id] { scroll-margin-top: 6rem; }
 .lesson-note-markdown h1 { font-size: 1.45rem; } .lesson-note-markdown h2 { font-size: 1.15rem; } .lesson-note-markdown h3 { font-size: .98rem; }
 .lesson-note-markdown a { color: var(--color-brand-700); text-decoration: underline; text-underline-offset: .15em; }
 .lesson-note-markdown code { padding: .12rem .28rem; background: var(--color-soft); border-radius: .25rem; font-size: .82em; }
@@ -523,7 +525,13 @@ h1, h2, h3, p { text-wrap: pretty; }
 .lesson-note-markdown .katex-display { max-width: 100%; overflow-x: auto; overflow-y: hidden; padding: .45rem 0; }
 .lesson-note-diagram { max-width: 100%; margin: 1.25rem 0; padding: 1rem; overflow-x: auto; background: var(--color-soft); border: 1px solid var(--color-line); border-radius: .65rem; text-align: center; }
 .lesson-note-diagram svg { width: 100%; max-width: 100%; height: auto; }
-.lesson-note-diagram > span { color: var(--color-muted); font-size: .75rem; }
+.lesson-note-diagram span { color: var(--color-muted); font-size: .75rem; }
+.lesson-note-diagram-expand { min-height: 2.5rem; margin: .5rem 0 0 auto; padding: .35rem .55rem; display: flex; align-items: center; gap: .35rem; color: var(--color-brand-700); background: white; border: 1px solid var(--color-line); border-radius: .4rem; font-size: .7rem; font-weight: 750; cursor: pointer; }
+.lesson-note-diagram-expand:hover { background: var(--color-brand-50); }
+.lesson-note-diagram-expand svg { width: .9rem; height: .9rem; }
+.lesson-note-diagram-dialog { width: min(80rem, 100%); }
+.lesson-note-diagram-full { max-height: calc(100vh - 8rem); overflow: auto; padding: 1rem; background: var(--color-soft); border-radius: .55rem; }
+.lesson-note-diagram-full svg { min-width: 42rem; width: 100%; height: auto; }
 .lesson-note-diagram-error { margin: 1.25rem 0; padding: 1rem; background: var(--color-soft); border: 1px solid var(--color-line); border-radius: .65rem; }
 .lesson-note-diagram-error p { margin: 0 0 .5rem; }
 .lesson-note-diagram-error pre { margin: 0; }
@@ -736,8 +744,9 @@ h1, h2, h3, p { text-wrap: pretty; }
   .app-main, .subject-notes-layout, .notes-workspace { display: block; width: 100%; max-width: none; min-height: 0; margin: 0; padding: 0; overflow: visible; border: 0; box-shadow: none; }
   .note-reader > header { padding: 0 0 1rem; }
   .note-reader-content { width: 100%; padding: 0; }
-  .lesson-note-markdown { max-width: none; color: #292c37; font-size: 10pt; }
+  .lesson-note-markdown { color: #292c37; font-size: 10pt; }
   .lesson-note-markdown table { display: table; overflow: visible; }
+  .lesson-note-diagram-expand, .lesson-note-diagram-dialog { display: none; }
   .lesson-note-markdown h1, .lesson-note-markdown h2, .lesson-note-markdown h3, .lesson-note-diagram, .lesson-note-markdown pre { break-inside: avoid; }
   .lesson-note-diagram { background: white; }
 }

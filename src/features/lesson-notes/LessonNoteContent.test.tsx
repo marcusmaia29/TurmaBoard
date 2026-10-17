@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import mermaid from "mermaid";
 import { LessonNoteContent } from "./LessonNoteContent";
 
@@ -31,6 +32,25 @@ describe("LessonNoteContent", () => {
     expect(container.querySelector(".katex")).toBeInTheDocument();
     await waitFor(() => expect(screen.getByRole("img", { name: "Diagrama do conteúdo da anotação" })).toHaveTextContent("Mapa de estudo"));
     expect(mermaid.initialize).toHaveBeenCalledWith(expect.objectContaining({ htmlLabels: false }));
+  });
+
+  it("amplia o diagrama e devolve o foco ao botão quando fechado", async () => {
+    const user = userEvent.setup();
+    render(<LessonNoteContent format="markdown" content={'```mermaid\nflowchart LR\n  A --> B\n```'} />);
+    const expand = await screen.findByRole("button", { name: "Ampliar diagrama" });
+    await user.click(expand);
+    expect(screen.getByRole("dialog", { name: "Diagrama ampliado" })).toHaveTextContent("Mapa de estudo");
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(expand).toHaveFocus();
+    expect(screen.getByRole("img", { name: "Diagrama do conteúdo da anotação" })).toHaveTextContent("Mapa de estudo");
+  });
+
+  it("permite navegar para títulos da própria anotação", () => {
+    render(<LessonNoteContent format="markdown" content={'[Ir para Chomsky](#note-heading-2-hierarquia-de-chomsky)\n\n## 2. Hierarquia de Chomsky'} />);
+    expect(screen.getByRole("heading", { name: "2. Hierarquia de Chomsky" })).toHaveAttribute("id", "note-heading-2-hierarquia-de-chomsky");
+    expect(screen.getByRole("link", { name: "Ir para Chomsky" })).toHaveAttribute("href", "#note-heading-2-hierarquia-de-chomsky");
+    expect(screen.getByRole("link", { name: "Ir para Chomsky" })).not.toHaveAttribute("target");
   });
 
   it("preserva o código-fonte quando o LaTeX armazenado é inválido", () => {

@@ -1,12 +1,14 @@
 import { isValidElement, useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import DOMPurify from "dompurify";
 import katex from "katex";
+import { Expand } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
 import rehypeSanitize from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import type { LessonNoteFormat } from "../../lib/database.types";
+import { Dialog } from "../../shared/Dialog";
 import "katex/dist/katex.min.css";
 
 let diagramSequence = 0;
@@ -15,6 +17,7 @@ function MermaidDiagram({ definition }: { definition: string }) {
   const id = useId().replace(/:/g, "");
   const [svg, setSvg] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -31,7 +34,27 @@ function MermaidDiagram({ definition }: { definition: string }) {
   }, [definition, id]);
 
   if (failed) return <div className="lesson-note-diagram-error"><p>Não foi possível exibir o diagrama.</p><pre>{definition}</pre></div>;
-  return <div className="lesson-note-diagram" role="img" aria-label="Diagrama do conteúdo da anotação">{svg ? <div dangerouslySetInnerHTML={{ __html: svg }} /> : <span>Carregando diagrama…</span>}</div>;
+  return <>
+    <div className="lesson-note-diagram">
+      <div role="img" aria-label="Diagrama do conteúdo da anotação">{svg && !expanded ? <div dangerouslySetInnerHTML={{ __html: svg }} /> : <span>{expanded ? "Diagrama ampliado." : "Carregando diagrama…"}</span>}</div>
+      {svg && <button className="lesson-note-diagram-expand" type="button" onClick={() => setExpanded(true)}><Expand aria-hidden="true" /> Ampliar diagrama</button>}
+    </div>
+    {expanded && svg && <Dialog title="Diagrama ampliado" className="lesson-note-diagram-dialog" onClose={() => setExpanded(false)}>
+      <div className="lesson-note-diagram-full" role="img" aria-label="Diagrama ampliado da anotação" dangerouslySetInnerHTML={{ __html: svg }} />
+    </Dialog>}
+  </>;
+}
+
+function headingText(children: ReactNode): string {
+  if (typeof children === "string" || typeof children === "number") return String(children);
+  if (Array.isArray(children)) return children.map(headingText).join("");
+  if (isValidElement<{ children?: ReactNode }>(children)) return headingText(children.props.children);
+  return "";
+}
+
+function headingId(children: ReactNode): string {
+  const slug = headingText(children).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return `note-heading-${slug}`;
 }
 
 function MarkdownPre({ children }: { children?: ReactNode }) {
@@ -64,7 +87,10 @@ export function LessonNoteContent({ format, content }: { format: LessonNoteForma
         rehypePlugins={[rehypeSanitize, [rehypeKatex, { trust: false, strict: "ignore" }]]}
         components={{
           img: () => null,
-          a: ({ children, href }) => <a href={href} target="_blank" rel="noreferrer">{children}</a>,
+          a: ({ children, href }) => <a href={href} target={href?.startsWith("#") ? undefined : "_blank"} rel={href?.startsWith("#") ? undefined : "noreferrer"}>{children}</a>,
+          h1: ({ children }) => <h1 id={headingId(children)}>{children}</h1>,
+          h2: ({ children }) => <h2 id={headingId(children)}>{children}</h2>,
+          h3: ({ children }) => <h3 id={headingId(children)}>{children}</h3>,
           pre: MarkdownPre,
         }}
       >
