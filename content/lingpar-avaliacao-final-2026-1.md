@@ -8,11 +8,13 @@ Este material segue uma trilha: primeiro, como descrevemos linguagens; depois, o
 
 ## Roteiro de leitura
 
-1. **TEOR · Fundamentos:** linguagens, gramáticas, Chomsky, autômatos e bombeamento.
-2. **TEOR · Computabilidade:** LBA, máquinas de Turing, recursivas, RE, parada e diagonalização.
-3. **TEOR · Programação e limites:** cálculo lambda, complexidade, P/NP, espaço, paradigmas e tipos.
-4. **COMP · Compilador:** lexer, parser, AST, semântica, escopo, funções e Assembly.
-5. **Revisão:** tabelas, roteiro de demonstração, exercícios e checklist.
+1. [**TEOR · Linguagens formais**](#note-heading-teor-linguagens-formais): gramáticas, Chomsky, autômatos e bombeamento.
+2. [**TEOR · Computabilidade e decidibilidade**](#note-heading-teor-computabilidade-e-decidibilidade): máquinas de Turing, Rec/RE, parada e diagonalização.
+3. [**TEOR · Funções, paradigmas e complexidade**](#note-heading-teor-funcoes-paradigmas-e-complexidade): cálculo lambda, P/NP, espaço e tipos.
+4. [**COMP · Do código-fonte ao executável**](#note-heading-comp-do-codigo-fonte-ao-executavel): lexer, parser, AST, semântica, funções e Assembly.
+5. [**Revisão de véspera**](#note-heading-revisao-de-vespera): fórmulas, exercícios resolvidos e checklist.
+
+**Atalhos para dúvidas frequentes:** [Chomsky](#note-heading-2-hierarquia-de-chomsky) · [Rec × RE](#note-heading-7-reconhecer-e-diferente-de-decidir) · [P e NP](#note-heading-12-p-np-e-reducoes) · [Pipeline do compilador](#note-heading-15-visao-geral-e-evolucao-do-projeto) · [Gabarito comentado](#note-heading-25-gabarito-comentado).
 
 ```mermaid
 flowchart LR
@@ -28,6 +30,8 @@ flowchart LR
 ---
 
 # TEOR · Linguagens formais
+
+**Em um minuto:** gramáticas geram cadeias; autômatos as reconhecem. O tipo de memória disponível separa as classes regular, livre de contexto e sensível ao contexto. Para classificar uma linguagem, mostre um reconhecedor e justifique por que uma classe menor não basta.
 
 ## 1. Do alfabeto à gramática
 
@@ -67,13 +71,21 @@ $$L_{Reg}\subsetneq L_{LC}\subsetneq L_{SC}\subsetneq L_{Rec}\subsetneq L_{RE}\s
 
 ```mermaid
 flowchart TB
-  U["Todas as linguagens sobre Σ"] --> RE["Tipo 0 · RE"]
-  RE --> REC["Decidíveis · Rec"]
-  REC --> SC["Tipo 1 · SC"]
-  SC --> LC["Tipo 2 · LC"]
-  LC --> REG["Tipo 3 · Regulares"]
-  U -.-> N["Há linguagens fora de RE"]
+  subgraph ALL["Todas as linguagens sobre Σ"]
+    OUT["Existem linguagens fora de RE"]
+    subgraph RE["Tipo 0 · RE"]
+      subgraph REC["Decidíveis · Rec"]
+        subgraph SC["Tipo 1 · SC"]
+          subgraph LC["Tipo 2 · LC"]
+            REG["Tipo 3 · Regulares"]
+          end
+        end
+      end
+    end
+  end
 ```
+
+Cada moldura contém a classe dentro dela; `Rec` é uma classe intermediária, não um tipo extra de Chomsky. A caixa fora de RE continua dentro do conjunto de todas as linguagens.
 
 **Conexão:** o compilador usa expressões regulares para tokens e gramáticas livres de contexto para a estrutura sintática; a semântica exige verificações adicionais.
 
@@ -84,16 +96,16 @@ Um autômato finito decide usando apenas um estado entre um número finito de po
 Para $L=\{a^mb^n\mid m,n\geq0\}$, a expressão é $a^*b^*$: depois de começar os `b`, um `a` invalida a cadeia. Gramáticas lineares à direita usam, por exemplo, $A\to wB$; à esquerda, $A\to Bw$. Manter a orientação consistente importa na conversão para autômatos.
 
 ```mermaid
-stateDiagram-v2
-  [*] --> q0
-  q0 --> q0: a
-  q0 --> q1: b
-  q1 --> q1: b
-  q1 --> morto: a
-  morto --> morto: a, b
+flowchart LR
+  I(("início")) --> q0@{ shape: dbl-circ, label: "q0 · aceita" }
+  q0 -->|a| q0
+  q0 -->|b| q1@{ shape: dbl-circ, label: "q1 · aceita" }
+  q1 -->|b| q1
+  q1 -->|a| morto(("morto"))
+  morto -->|a, b| morto
 ```
 
-No diagrama, `q0` e `q1` são estados de aceitação; o estado morto rejeita. A condição de aceitação precisa ser declarada, mesmo quando o desenho simplificado não marca estados finais graficamente.
+As bordas duplas marcam `q0` e `q1` como estados de aceitação. O estado morto rejeita. Assim, `ε`, `a` e `ab` são aceitas; `ba` chega ao estado morto.
 
 **Lema do bombeamento regular.** Se $L$ é regular, existe $p$ tal que toda $w\in L$ com $|w|\geq p$ admite $w=xyz$, com $\lvert y\rvert>0$, $|xy|\leq p$ e $xy^iz\in L$ para todo $i\geq0$. Para provar que $\{a^nb^n\}$ não é regular, escolha $w=a^pb^p$. Qualquer $y$ permitido só contém `a`; bombeá-lo altera a quantidade de `a` sem alterar a de `b`.
 
@@ -141,6 +153,8 @@ As linguagens SC são fechadas por união, concatenação, interseção, complem
 ---
 
 # TEOR · Computabilidade e decidibilidade
+
+**Em um minuto:** reconhecer exige parar e aceitar nos casos positivos; decidir exige também parar e rejeitar nos negativos. Uma máquina de Turing pode ter memória irrestrita, mas isso não implica que todo problema seja decidível.
 
 ## 6. Máquina de Turing
 
@@ -231,6 +245,8 @@ Para $\Sigma$ finito não vazio, $\Sigma^*$ é enumerável: ordene cadeias por c
 ---
 
 # TEOR · Funções, paradigmas e complexidade
+
+**Em um minuto:** cálculo lambda descreve computação por aplicação e substituição; complexidade mede o custo dos procedimentos que existem. Em reduções, a direção indica qual problema conhecido é transformado no problema que se quer classificar.
 
 ## 10. Cálculo lambda
 
@@ -351,6 +367,8 @@ Tipos primitivos incluem inteiros, booleanos, strings e reais; compostos incluem
 ---
 
 # COMP · Do código-fonte ao executável
+
+**Em um minuto:** o lexer identifica tokens, o parser organiza a AST, a análise semântica valida significado e o gerador emite código. Para explicar um erro, localize a primeira fase capaz de detectá-lo.
 
 ## 15. Visão geral e evolução do projeto
 
@@ -492,6 +510,8 @@ O **assembler** converte Assembly em código objeto; o **linker** resolve ligaç
 
 # Revisão de véspera
 
+**Uso rápido:** revise a folha de relações, responda às cinco questões sem olhar, confira o gabarito e volte aos trechos em que errou. O checklist final indica o que retomar primeiro.
+
 ## 21. Folha de fórmulas e teoremas
 
 | Tema | Relação para saber explicar |
@@ -507,37 +527,14 @@ O **assembler** converte Assembly em código objeto; o **linker** resolve ligaç
 | Redução | $A\le_p B\iff w\in A\Leftrightarrow f(w)\in B$ para $f$ polinomial |
 | Savitch | $NSPACE(s(n))\subseteq DSPACE(s(n)^2)$; $PSPACE=NPSPACE$ |
 
-## 22. Seis mapas para reconstruir a disciplina
+## 22. Seis perguntas para reconstruir a disciplina
 
-```mermaid
-flowchart LR
-  A["Linguagens formais"] --> B["Gramáticas"] --> C["Chomsky"] --> D["AF · AP · LBA · MT"]
-```
-
-```mermaid
-flowchart LR
-  A["MT"] --> B["Decisor: Rec"] --> C["Reconhecedor: RE"] --> D["Parada indecidível"]
-```
-
-```mermaid
-flowchart LR
-  A["Σ* enumerável"] --> B["Descrições enumeráveis"] --> C["Potência não enumerável"] --> D["Diagonalização"] --> E["Linguagens fora de RE"]
-```
-
-```mermaid
-flowchart LR
-  A["Cálculo lambda"] --> B["Abstração e aplicação"] --> C["Alfa · beta · eta"] --> D["Church"] --> E["Funções e recursão"]
-```
-
-```mermaid
-flowchart LR
-  A["Complexidade"] --> B["Tempo e espaço"] --> C["Big-O"] --> D["P e NP"] --> E["Reduções e NP-completude"] --> F["PSPACE"]
-```
-
-```mermaid
-flowchart LR
-  A["Fonte"] --> B["Lexer"] --> C["Parser"] --> D["AST"] --> E["Semântica"] --> F["Assembly"]
-```
+1. **Como uma linguagem é descrita e reconhecida?** A gramática gera cadeias; AF, AP, LBA e MT reconhecem classes com memórias diferentes. [Revisar Chomsky](#note-heading-2-hierarquia-de-chomsky).
+2. **O que separa Rec de RE?** A parada em todas as entradas: o reconhecedor pode continuar para sempre em casos negativos. [Revisar decidibilidade](#note-heading-7-reconhecer-e-diferente-de-decidir).
+3. **Por que existem linguagens fora de RE?** Descrições de máquinas são enumeráveis; conjuntos de cadeias formam uma família não enumerável. [Revisar diagonalização](#note-heading-9-cardinalidade-e-diagonalizacao).
+4. **Como aplicar uma função lambda sem captura?** Identifique variáveis livres, faça alfa-conversão se necessário e só então beta-redução. [Revisar cálculo lambda](#note-heading-10-calculo-lambda).
+5. **Como demonstrar dificuldade computacional?** Defina o custo, verifique certificados e reduza um problema conhecido ao problema alvo. [Revisar P e NP](#note-heading-12-p-np-e-reducoes).
+6. **Como o compilador transforma o programa?** Fonte → tokens → AST → verificações semânticas → Assembly. [Revisar o pipeline](#note-heading-15-visao-geral-e-evolucao-do-projeto).
 
 ## 23. Como construir uma resposta rigorosa
 
@@ -559,7 +556,28 @@ flowchart LR
 
 **E.** Na expressão $(\lambda x.\lambda y.x)\,y$, por que a substituição direta é perigosa? *Dica 1:* veja quais variáveis estão livres antes da redução. *Dica 2:* renomeie a variável ligada interna.
 
-## 25. Checklist por prioridade
+## 25. Gabarito comentado
+
+**A · Pilha e bombeamento.** A pilha guarda um marcador por `a` e remove um por `b`, permitindo comparar quantidades sem limite pré-fixado. Para justificar que nenhum AF resolve o problema, suponha $L$ regular e use seu comprimento de bombeamento $p$. Na cadeia $a^pb^p$, qualquer divisão $w=xyz$ com $|xy|\le p$ e $|y|>0$ tem $y=a^k$ para algum $k>0$. Com $i=0$, obtemos $a^{p-k}b^p\notin L$, contrariando o lema. **Cuidado:** é preciso considerar toda divisão permitida, não escolher uma divisão conveniente.
+
+**B · Reconhecedor.** A descrição garante que a linguagem é **RE**: todas as entradas positivas levam a `sim` em tempo finito. Ela não garante que a linguagem seja decidível, pois uma entrada negativa pode nunca receber resposta. Para concluir que é Rec, faltaria um procedimento que também parasse e rejeitasse todas as entradas negativas.
+
+**C · Direção da redução.** Mostre $A\le_p B$, com $A$ já conhecido como NP-hard. A transformação $f$ deve ser polinomial e preservar `sim ⇔ sim`: $x\in A\iff f(x)\in B$. Se houvesse um algoritmo rápido para $B$, compor $f$ com ele resolveria $A$ rapidamente. Para afirmar que $B$ é **NP-completo**, prove ainda que $B\in NP$. **Cuidado:** $B\le_p A$ não estabelece a dificuldade de $B$.
+
+**D · Duas ASTs.** Em `(2 + 3) * 4`, a raiz é `*`, com `+` e `4` como filhos. Em `2 + 3 * 4`, a raiz é `+`, com `2` e `*` como filhos. A árvore muda porque parênteses alteram o agrupamento; a AST não precisa de um nó para cada parêntese.
+
+```text
+(2 + 3) * 4          2 + 3 * 4
+      *                   +
+     / \                 / \
+    +   4               2   *
+   / \                     / \
+  2   3                   3   4
+```
+
+**E · Substituição sem captura.** O argumento `y` está livre. Substituí-lo diretamente em $\lambda y.x$ faria esse `y` ficar ligado pela abstração interna e mudaria o significado. Primeiro renomeie a variável ligada: $\lambda x.\lambda y.x\equiv_\alpha\lambda x.\lambda z.x$. Depois reduza: $(\lambda x.\lambda z.x)\,y\to_\beta\lambda z.y$. O `y` do resultado continua livre.
+
+## 26. Checklist por prioridade
 
 **Alta:** explicar MT; diferenciar Rec/RE; justificar a indecidibilidade da parada; fazer reduções beta sem captura; definir P e NP; orientar uma redução polinomial; reconstruir a cadeia completa do compilador.
 
