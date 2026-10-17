@@ -515,6 +515,18 @@ h1, h2, h3, p { text-wrap: pretty; }
 .lesson-note-markdown pre { padding: .85rem; overflow-x: auto; background: oklch(0.24 0.025 260); color: white; border-radius: .55rem; }
 .lesson-note-markdown pre code { padding: 0; background: none; }
 .lesson-note-markdown table { width: 100%; border-collapse: collapse; } .lesson-note-markdown th, .lesson-note-markdown td { padding: .45rem; border: 1px solid var(--color-line); text-align: left; }
+.lesson-note-markdown table { display: block; overflow-x: auto; font-size: .82em; }
+.lesson-note-markdown th { background: var(--color-soft); font-weight: 750; }
+.lesson-note-markdown blockquote { margin: 1.35rem 0; padding: .85rem 1rem; background: var(--color-brand-50); border: 1px solid var(--color-brand-100); border-radius: .65rem; }
+.lesson-note-markdown blockquote p { margin: 0; }
+.lesson-note-markdown hr { margin: 2.5rem 0; border: 0; border-top: 1px solid var(--color-line); }
+.lesson-note-markdown .katex-display { max-width: 100%; overflow-x: auto; overflow-y: hidden; padding: .45rem 0; }
+.lesson-note-diagram { max-width: 100%; margin: 1.25rem 0; padding: 1rem; overflow-x: auto; background: var(--color-soft); border: 1px solid var(--color-line); border-radius: .65rem; text-align: center; }
+.lesson-note-diagram svg { width: 100%; max-width: 100%; height: auto; }
+.lesson-note-diagram > span { color: var(--color-muted); font-size: .75rem; }
+.lesson-note-diagram-error { margin: 1.25rem 0; padding: 1rem; background: var(--color-soft); border: 1px solid var(--color-line); border-radius: .65rem; }
+.lesson-note-diagram-error p { margin: 0 0 .5rem; }
+.lesson-note-diagram-error pre { margin: 0; }
 .lesson-note-latex { max-width: 100%; padding: 1rem 0; overflow-x: auto; color: var(--color-ink); font-size: 1.05rem; }
 .lesson-note-render-error { padding: 1rem; color: oklch(0.45 0.17 25); background: oklch(0.97 0.035 25); border: 1px solid oklch(0.88 0.07 25); border-radius: .65rem; }
 .lesson-note-render-error p { font-size: .75rem; } .lesson-note-render-error pre { overflow-x: auto; color: var(--color-ink); }
@@ -716,4 +728,16 @@ h1, h2, h3, p { text-wrap: pretty; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+@media print {
+  html, body { min-width: 0; background: white; }
+  .app-header, .subject-notes-page > .page-header, .notes-subjects, .notes-index, .note-reader-actions, .mobile-notes-back, .note-reader > footer { display: none !important; }
+  .app-main, .subject-notes-layout, .notes-workspace { display: block; width: 100%; max-width: none; min-height: 0; margin: 0; padding: 0; overflow: visible; border: 0; box-shadow: none; }
+  .note-reader > header { padding: 0 0 1rem; }
+  .note-reader-content { width: 100%; padding: 0; }
+  .lesson-note-markdown { max-width: none; color: #292c37; font-size: 10pt; }
+  .lesson-note-markdown table { display: table; overflow: visible; }
+  .lesson-note-markdown h1, .lesson-note-markdown h2, .lesson-note-markdown h3, .lesson-note-diagram, .lesson-note-markdown pre { break-inside: avoid; }
+  .lesson-note-diagram { background: white; }
 }

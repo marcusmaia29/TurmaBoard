@@ -1,5 +1,10 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { LessonNoteContent } from "./LessonNoteContent";
+
+vi.mock("mermaid", () => ({ default: {
+  initialize: vi.fn(),
+  render: vi.fn().mockResolvedValue({ svg: '<svg xmlns="http://www.w3.org/2000/svg"><text>Mapa de estudo</text></svg>' }),
+} }));
 
 describe("LessonNoteContent", () => {
   it("renderiza GFM sem HTML bruto, scripts ou imagens externas", () => {
@@ -18,6 +23,12 @@ describe("LessonNoteContent", () => {
   it("renderiza uma fórmula LaTeX válida", () => {
     const { container } = render(<LessonNoteContent format="latex" content="x^2 + y^2 = z^2" />);
     expect(container.querySelector(".katex")).toBeInTheDocument();
+  });
+
+  it("renderiza matemática e diagramas dentro de Markdown", async () => {
+    const { container } = render(<LessonNoteContent format="markdown" content={'A fórmula $a^2+b^2=c^2$.\n\n```mermaid\nflowchart LR\n  A --> B\n```'} />);
+    expect(container.querySelector(".katex")).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole("img", { name: "Diagrama do conteúdo da anotação" })).toHaveTextContent("Mapa de estudo"));
   });
 
   it("preserva o código-fonte quando o LaTeX armazenado é inválido", () => {
