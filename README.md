@@ -93,8 +93,9 @@ Then start the application:
 npm run dev
 ```
 
-`npx supabase db reset` applies every migration in `supabase/migrations/` and
-then loads `supabase/seed.sql`. Supabase Studio runs at `http://127.0.0.1:54323`.
+The local rebuild uses the two-step reset below because a historical content
+migration depends on a seeded subject. Supabase Studio runs at
+`http://127.0.0.1:54323`.
 
 Without the environment variables the app still renders: `isSupabaseConfigured`
 drives a banner in the shell instead of crashing, which keeps interface work
@@ -129,7 +130,8 @@ use `.env.example` to document new public configuration values.
 
 ```powershell
 npx supabase migration new descriptive_change_name
-npx supabase db reset
+npx supabase db reset --version 20261016221346
+npx supabase migration up --local
 npm run types:generate
 ```
 

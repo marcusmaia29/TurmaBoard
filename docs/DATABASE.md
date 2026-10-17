@@ -67,7 +67,7 @@ Then use this project workflow:
 1. Start the local stack with `npx supabase start`.
 2. Create a migration with `npx supabase migration new descriptive_name`.
 3. Implement and review the SQL in the generated migration.
-4. Rebuild the local database with `npx supabase db reset`.
+4. Rebuild the local database with the two-step reset below.
 5. Regenerate types with `npm run types:generate`.
 6. Review changes to `src/lib/database.generated.ts`.
 7. Add domain aliases to `src/lib/database.types.ts` when application code needs
@@ -77,6 +77,19 @@ Then use this project workflow:
 Never invent a migration timestamp manually and never edit an already applied
 migration. Linking or pushing to a hosted Supabase project requires explicit
 user authorization.
+
+The historical Lingpar publication migration expects the LP subject, while
+`supabase/seed.sql` loads subjects after migrations. A plain `db reset` therefore
+stops at that migration. Rebuild the complete local database with:
+
+```powershell
+npx supabase db reset --version 20261016221346
+npx supabase migration up --local
+```
+
+The first command runs the seed after the earlier migrations; the second applies
+the Lingpar migrations and any later ones. This preserves the applied migration
+history without editing it.
 
 ## Generated types
 
@@ -104,7 +117,7 @@ and regenerate instead of editing the output.
 - Soft-deleted deliveries are excluded from public reads.
 - Audit triggers capture the actor and expected before/after state.
 - Realtime publication and frontend invalidation include new shared entities.
-- `npx supabase db reset` succeeds from an empty local state.
+- The two-step local reset above succeeds from an empty local state.
 - Generated types and application aliases compile.
 
 Run database advisors when the installed CLI supports them:

@@ -108,10 +108,10 @@ this phase.
 
 ## Local verification
 
-After `npx supabase start` and `npx supabase db reset`, use the local API URL,
+After `npx supabase start` and the [two-step local reset](./DATABASE.md#making-a-schema-change), use the local API URL,
 secret key, and publishable key as `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, and
 `SUPABASE_PUBLISHABLE_KEY`. Run `npm run vacancies:test:local`. This test only
 accepts a localhost URL. It checks repeated publication, updating, closure,
 explicit reopening, public visibility, and visitor write denial. It leaves a
-closed fixture in the disposable local database; run `npx supabase db reset`
-again to clear it. `npm run check` runs the pure validation tests and build.
+closed fixture in the disposable local database; repeat the two-step reset to
+clear it. `npm run check` runs the pure validation tests and build.
