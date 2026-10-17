@@ -19,7 +19,7 @@ function MermaidDiagram({ definition }: { definition: string }) {
   useEffect(() => {
     let active = true;
     void import("mermaid").then(async ({ default: mermaid }) => {
-      mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme: "base", themeVariables: {
+      mermaid.initialize({ startOnLoad: false, securityLevel: "strict", htmlLabels: false, theme: "base", themeVariables: {
         primaryColor: "#F1F4FF", primaryBorderColor: "#AAB9FF", primaryTextColor: "#292C37",
         lineColor: "#676B78", secondaryColor: "#F7F8FA", tertiaryColor: "#FFFFFF",
         fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",

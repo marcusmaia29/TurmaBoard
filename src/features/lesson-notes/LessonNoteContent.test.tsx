@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import mermaid from "mermaid";
 import { LessonNoteContent } from "./LessonNoteContent";
 
 vi.mock("mermaid", () => ({ default: {
@@ -29,6 +30,7 @@ describe("LessonNoteContent", () => {
     const { container } = render(<LessonNoteContent format="markdown" content={'A fórmula $a^2+b^2=c^2$.\n\n```mermaid\nflowchart LR\n  A --> B\n```'} />);
     expect(container.querySelector(".katex")).toBeInTheDocument();
     await waitFor(() => expect(screen.getByRole("img", { name: "Diagrama do conteúdo da anotação" })).toHaveTextContent("Mapa de estudo"));
+    expect(mermaid.initialize).toHaveBeenCalledWith(expect.objectContaining({ htmlLabels: false }));
   });
 
   it("preserva o código-fonte quando o LaTeX armazenado é inválido", () => {
