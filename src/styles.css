@@ -529,9 +529,9 @@ h1, h2, h3, p { text-wrap: pretty; }
 .lesson-note-diagram-expand { min-height: 2.5rem; margin: .5rem 0 0 auto; padding: .35rem .55rem; display: flex; align-items: center; gap: .35rem; color: var(--color-brand-700); background: white; border: 1px solid var(--color-line); border-radius: .4rem; font-size: .7rem; font-weight: 750; cursor: pointer; }
 .lesson-note-diagram-expand:hover { background: var(--color-brand-50); }
 .lesson-note-diagram-expand svg { width: .9rem; height: .9rem; }
-.lesson-note-diagram-dialog { width: min(80rem, 100%); }
-.lesson-note-diagram-full { max-height: calc(100vh - 8rem); overflow: auto; padding: 1rem; background: var(--color-soft); border-radius: .55rem; }
-.lesson-note-diagram-full svg { min-width: 42rem; width: 100%; height: auto; }
+.lesson-note-diagram-dialog { width: min(68rem, 100%); }
+.lesson-note-diagram-full { max-height: calc(100vh - 11rem); overflow: auto; padding: 1rem; background: var(--color-soft); border-radius: .55rem; }
+.lesson-note-diagram-full svg { min-width: 52rem; width: 100%; max-width: none !important; height: auto; }
 .lesson-note-diagram-error { margin: 1.25rem 0; padding: 1rem; background: var(--color-soft); border: 1px solid var(--color-line); border-radius: .65rem; }
 .lesson-note-diagram-error p { margin: 0 0 .5rem; }
 .lesson-note-diagram-error pre { margin: 0; }
@@ -732,6 +732,7 @@ h1, h2, h3, p { text-wrap: pretty; }
   .image-draft > div > strong { grid-column: 1; }
   .image-draft > span { grid-column: 2; }
   .image-viewer { grid-template-columns: 1fr; } .image-viewer > button { display: none; }
+  .lesson-note-diagram-full svg { min-width: 42rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
