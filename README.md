@@ -18,7 +18,7 @@ tests, and technical documentation are written in English.
 
 | Route | Name in the interface | Purpose |
 | --- | --- | --- |
-| `/week` | Semana | Weekly board, one column per subject, with administration |
+| `/week` | Semana | Weekly board grouped by subject or day, with administration |
 | `/calendar` | Calendário | Monthly view of the same delivery records |
 | `/subjects` | Disciplinas | Subject notes, official links, and ordering |
 | `/history` | Histórico | Paginated audit trail of every content change |
