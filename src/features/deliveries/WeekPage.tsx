@@ -24,6 +24,8 @@ import { fetchLessonNotes, softDeleteLessonNote } from "../lesson-notes/lesson-n
 import { LessonNoteCard } from "../lesson-notes/LessonNoteCard";
 import type { LessonNoteWithSubjectAndImages } from "../../lib/database.types";
 import { mergeAcademicItems } from "../lesson-notes/lesson-note.utils";
+import { SegmentedControl } from "../../shared/SegmentedControl";
+import { DayBoard } from "./DayBoard";
 
 type DeliveryFilter = "all" | DeliveryType | "lesson-note";
 
@@ -39,6 +41,7 @@ export default function WeekPage() {
   const queryClient = useQueryClient();
   const [referenceDate, setReferenceDate] = useState(new Date());
   const [filter, setFilter] = useState<DeliveryFilter>("all");
+  const [view, setView] = useState<"subject" | "day">("subject");
   const [dialogState, setDialogState] = useState<{ open: boolean; delivery: DeliveryWithSubject | null }>({ open: false, delivery: null });
   const [pendingDelete, setPendingDelete] = useState<DeliveryWithSubject | null>(null);
   const [pendingNoteDelete, setPendingNoteDelete] = useState<LessonNoteWithSubjectAndImages | null>(null);
@@ -108,7 +111,7 @@ export default function WeekPage() {
     <div>
       <PageHeader
         title="Semana da turma"
-        description="Prazos, atividades e anotações de aula reunidos por disciplina."
+        description={`Prazos, atividades e anotações de aula reunidos por ${view === "day" ? "dia" : "disciplina"}.`}
         action={isAdmin ? (
           <span className="page-actions"><Link className="secondary-button" to={subjects[0] ? `/subjects/${subjects[0].id}/notes/new` : "/subjects"}><Plus aria-hidden="true" /> Nova anotação</Link><button className="primary-button" type="button" onClick={() => setDialogState({ open: true, delivery: null })} disabled={!subjects.length}><Plus aria-hidden="true" /> Adicionar entrega</button></span>
         ) : undefined}
@@ -127,6 +130,7 @@ export default function WeekPage() {
           reset={{ label: "Hoje", onReset: () => setReferenceDate(new Date()) }}
         />
         {isCompact && <FilterMenu label="Tipo" options={filterOptions} value={filter} onChange={setFilter} />}
+        <div className="week-view-switch"><SegmentedControl label="Visualização do quadro" options={[{ value: "subject", label: "Por disciplina" }, { value: "day", label: "Por dia" }]} value={view} onChange={setView} /></div>
         <ResultCount isSupplementary>{itemCount} {itemCount === 1 ? "item" : "itens"}</ResultCount>
       </Toolbar>
 
@@ -135,7 +139,7 @@ export default function WeekPage() {
         <ErrorState onRetry={() => { void deliveriesQuery.refetch(); void subjectsQuery.refetch(); void notesQuery.refetch(); }} />
       )}
       {!deliveriesQuery.isLoading && !subjectsQuery.isLoading && !notesQuery.isLoading && !deliveriesQuery.isError && !subjectsQuery.isError && !notesQuery.isError && (
-        <div className="subject-board">
+        view === "day" ? <DayBoard startKey={week.startKey} items={mergeAcademicItems(filteredDeliveries, filteredNotes)} renderItem={(item) => item.kind === "delivery" ? <DeliveryCard delivery={item.data} isAdmin={isAdmin} onEdit={(delivery) => setDialogState({ open: true, delivery })} onDelete={requestDelete} /> : <LessonNoteCard note={item.data} isAdmin={isAdmin} onDelete={setPendingNoteDelete} />} /> : <div className="subject-board">
           {subjects.map((subject) => {
             const subjectDeliveries = filteredDeliveries.filter((delivery) => delivery.subject_id === subject.id);
             const subjectNotes = filteredNotes.filter((note) => note.subject_id === subject.id);

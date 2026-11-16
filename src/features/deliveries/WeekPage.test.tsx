@@ -58,6 +58,8 @@ describe("WeekPage", () => {
     vi.mocked(fetchDeliveries).mockResolvedValue(deliveries);
     vi.mocked(fetchSubjects).mockResolvedValue([makeSubjectWithLinks(lp), makeSubjectWithLinks(ml)]);
     vi.mocked(fetchLessonNotes).mockResolvedValue([]);
+    HTMLElement.prototype.scrollTo = vi.fn();
+    HTMLElement.prototype.scrollBy = vi.fn();
   });
 
   afterEach(() => {
@@ -86,6 +88,22 @@ describe("WeekPage", () => {
     expect(screen.getByRole("heading", { name: "Avaliação intermediária" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Quiz 4 — validação cruzada" })).not.toBeInTheDocument();
     expect(toolbar().getByText("1 item")).toBeInTheDocument();
+  });
+
+  it("switches grouping without losing the type filter or week", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    renderPage();
+    await screen.findByRole("heading", { name: "Avaliação intermediária" });
+    await user.click(toolbar().getByRole("button", { name: "Prova" }));
+    await user.click(toolbar().getByRole("button", { name: "Por dia" }));
+    const wednesday = screen.getByRole("region", { name: "Quarta-feira 02/09" });
+    expect(within(wednesday).getByRole("heading", { name: "Avaliação intermediária" })).toBeInTheDocument();
+    expect(wednesday).toHaveAttribute("aria-current", "date");
+    expect(screen.queryByRole("heading", { name: "Quiz 4 — validação cruzada" })).not.toBeInTheDocument();
+    expect(toolbar().getByText("1 item")).toBeInTheDocument();
+    await user.click(toolbar().getByRole("button", { name: "Por disciplina" }));
+    expect(toolbar().getByRole("button", { name: "Prova" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText("31/08 a 06/09")).toBeInTheDocument();
   });
 
   it("collapses the type filters into a menu on narrow screens", async () => {
